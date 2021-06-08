@@ -56,7 +56,7 @@ const ShowBox = (props) => {
       question: question,
       answer: answer,
     };
-    if (loginUsername.trim().length === 0 || answer.trim().length == 0) {
+    if (loginUsername.trim().length === 0 || answer.trim().length === 0) {
       setFlash({
         show: true,
         type: 'danger',
@@ -66,6 +66,7 @@ const ShowBox = (props) => {
       axios.post('/forgot-password', data).then((res) => {
         if (res.data.success) {
           setShowSet(true);
+          setFlash({ show: false, type: '', msg: '' });
         } else {
           setFlash({ show: true, type: 'danger', msg: res.data.msg });
         }
@@ -115,10 +116,10 @@ const ShowBox = (props) => {
       style={{
         height: '100%',
         zIndex: 20,
-        backgroundColor: 'rgba(128,0,128 ,0.2)',
+        backgroundColor: 'rgba(135,206,235 ,0.7)',
       }}
     >
-      <div className="d-flex flex-column align-items-center bg-white rounded-lg w-50 ">
+      <div className="d-flex flex-column align-items-center bg-white rounded-lg resp-width-75">
         <div className="w-75" hidden={showSet}>
           <h5 className="text-left w-75 mt-4">Forgot Password</h5>
           <div className="w-100 d-flex flex-column px-4 pt-3">
@@ -213,7 +214,7 @@ const ShowBox = (props) => {
             <TextField
               helperText={
                 resetPassword.password.trim().length < 8 &&
-                resetPassword.password.trim().length != 0
+                resetPassword.password.trim().length !== 0
                   ? 'Minimum 8 characters'
                   : null
               }
@@ -256,7 +257,7 @@ const ShowBox = (props) => {
             <TextField
               helperText={
                 resetCPassword.password.trim().length < 8 &&
-                resetCPassword.password.trim().length != 0
+                resetCPassword.password.trim().length !== 0
                   ? 'Minimum 8 characters'
                   : null
               }

@@ -12,6 +12,7 @@ import {
   faComment,
   faLaughBeam,
   faTimes,
+  faTachometerAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { connect } from 'react-redux';
@@ -21,7 +22,6 @@ const UserIcon2 = (props) => {
   const history = useHistory();
   const [userIcon, setUserIcon] = useState(false);
   const [slider, setSlider] = useState(false);
-  const [activ, setActiv] = useState('');
   const logOut = () => {
     axios.get('/logout').then((res) => {
       if (res.data.success) {
@@ -43,7 +43,12 @@ const UserIcon2 = (props) => {
                 className="user-icon"
                 onClick={() => setUserIcon(!userIcon)}
               >
-                <img src="owl.ico" width="60px" height="60px" />
+                <img
+                  src="owl.ico"
+                  width="60px"
+                  height="60px"
+                  alt="opinion-logo"
+                />
               </button>
             </div>
             <div className="ml-4 my-auto d-flex">
@@ -57,6 +62,31 @@ const UserIcon2 = (props) => {
         <div className={'options-widget' + (slider ? '' : ' d-none')}>
           <div className="d-flex x">
             <button
+              aria-labelledby="dashboard"
+              className="link"
+              onClick={() => props.setTabActive('dashboard')}
+            >
+              <FontAwesomeIcon
+                icon={faTachometerAlt}
+                className="text-light icons"
+              />
+            </button>
+            <button
+              className="link"
+              onClick={() =>
+                history.push({
+                  pathname: '/create-poll',
+                })
+              }
+            >
+              <FontAwesomeIcon
+                icon={faPencilAlt}
+                className="icons"
+                style={{ color: '#073b4c' }}
+              />
+            </button>
+
+            <button
               className="link"
               onClick={() => props.setTabActive('mypolls')}
             >
@@ -69,7 +99,7 @@ const UserIcon2 = (props) => {
               <FontAwesomeIcon
                 icon={faUserCog}
                 className=" icons"
-                style={{ color: '#2A1B3D' }}
+                style={{ color: '#5a189a' }}
               />
             </button>
             <button className="link" onClick={logOut}>
@@ -111,7 +141,12 @@ const UserIcon2 = (props) => {
             <div className="slide-option-image d-flex flex-column">
               <div className="slide-image-holder">
                 <button className="user-icon">
-                  <img src="owl.ico" width="100px" height="100px" />
+                  <img
+                    src="owl.ico"
+                    width="100px"
+                    height="100px"
+                    alt="opinion-logo"
+                  />
                 </button>
               </div>
               <span className="mt-3 mb-0 text-light h5">@{props.username}</span>
@@ -139,14 +174,26 @@ const UserIcon2 = (props) => {
             <li className="user-options-2">
               <button
                 className="link"
-                onClick={() =>
-                  history.push({
-                    pathname: '/useraccount',
-                    state: {
-                      activate: 'mypolls',
-                    },
-                  })
-                }
+                onClick={() => {
+                  props.setTabActive('dashboard');
+                  setUserIcon(!userIcon);
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={faTachometerAlt}
+                  size="1x"
+                  className="mr-2"
+                />
+                <span>Dashboard</span>
+              </button>
+            </li>
+            <li className="user-options-2">
+              <button
+                className="link"
+                onClick={() => {
+                  props.setTabActive('mypolls');
+                  setUserIcon(!userIcon);
+                }}
               >
                 <FontAwesomeIcon icon={faPollH} size="1x" className="mr-2" />
                 <span>My polls</span>
@@ -156,14 +203,10 @@ const UserIcon2 = (props) => {
             <li className="user-options-2">
               <button
                 className="link"
-                onClick={() =>
-                  history.push({
-                    pathname: '/useraccount',
-                    state: {
-                      activate: 'settings',
-                    },
-                  })
-                }
+                onClick={() => {
+                  props.setTabActive('settings');
+                  setUserIcon(!userIcon);
+                }}
               >
                 <FontAwesomeIcon icon={faUserCog} size="1x" className="mr-2" />
                 <span>Settings</span>
@@ -175,14 +218,10 @@ const UserIcon2 = (props) => {
             <li className="user-options-2">
               <button
                 className="link"
-                onClick={() =>
-                  history.push({
-                    pathname: '/useraccount',
-                    state: {
-                      activate: 'feedback',
-                    },
-                  })
-                }
+                onClick={() => {
+                  props.setTabActive('feedback');
+                  setUserIcon(!userIcon);
+                }}
               >
                 <FontAwesomeIcon icon={faComment} size="1x" className="mr-2" />
                 <span>Send feedback</span>
@@ -193,7 +232,7 @@ const UserIcon2 = (props) => {
                 className="link"
                 onClick={() =>
                   history.push({
-                    pathname: '/our-team',
+                    pathname: '/team',
                   })
                 }
               >

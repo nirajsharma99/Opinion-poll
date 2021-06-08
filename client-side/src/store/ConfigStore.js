@@ -10,7 +10,6 @@ const ConfigureStore = () => {
       ? window.localStorage.getItem('master_class')
       : {};
     const decrypted = AES.decrypt(intialState, 'q1w2e3r4').toString(enc.Utf8);
-    console.log(decrypted);
     decryptedObject = decrypted ? JSON.parse(decrypted) : {};
   } catch (error) {
     console.log('getError', error);

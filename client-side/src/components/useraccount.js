@@ -1,12 +1,52 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import Header from './header';
 import UserIcon2 from './user-icon-settings';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import UserInfo from './user-info';
+import Notification from './notification';
+import Loader from './loader/loader';
 import { connect } from 'react-redux';
+
 const UserAccount = (props) => {
-  const [tabActive, setTabActive] = useState(props.location.state.activate);
+  const history = useHistory();
+  var activ = props.location.state
+    ? props.location.state.activate
+    : 'dashboard';
+  const [tabActive, setTabActive] = useState(activ);
+  const [loader, setLoader] = useState(true);
+  const [toast, setToast] = useState({
+    snackbaropen: false,
+    msg: '',
+    not: '',
+  });
+  const snackbarclose = (event) => {
+    setToast({
+      snackbaropen: false,
+    });
+  };
+  var temp = JSON.parse(localStorage.getItem('notify'));
+  useEffect(() => {
+    if (!props.userDetails.username) {
+      history.push('/');
+    }
+  }, [props, history]);
+  useEffect(() => {
+    if (temp) {
+      setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
+      localStorage.removeItem('notify');
+    }
+  }, [temp]);
   return (
     <div className="position-relative">
+      {loader ? <Loader /> : null}
+      <Notification
+        switcher={toast.snackbaropen}
+        close={snackbarclose}
+        message={toast.msg}
+        nottype={toast.not}
+      />
       <Header />
       <UserIcon2
         username={props.userDetails.username}
@@ -14,9 +54,24 @@ const UserAccount = (props) => {
         setTabActive={setTabActive}
       />
       <div className=" account-info-container m-auto position-relative">
-        <img src="4426.jpg" className="position-absolute d-sm-block d-none" />
+        <img
+          src="4426.jpg"
+          className="position-absolute d-sm-block d-none"
+          alt="opinion-background"
+        />
         <div className="py-5 px-3 d-flex flex-xl-row flex-column m-auto">
           <div className=" account-info-btn d-flex flex-xl-column flex-row  ">
+            <li className="accounts-btn-li">
+              <button
+                className={
+                  'accounts-btn' +
+                  (tabActive === 'dashboard' ? ' activTab' : '')
+                }
+                onClick={() => setTabActive('dashboard')}
+              >
+                Dashboard
+              </button>
+            </li>
             <li className="accounts-btn-li">
               <button
                 className={
@@ -51,15 +106,22 @@ const UserAccount = (props) => {
           <UserInfo
             username={props.userDetails.username}
             activate={tabActive}
-            userid={props.userDetails._id}
+            setLoader={setLoader}
           />
         </div>
       </div>
+      <Link to={{ pathname: '/team' }}>
+        <p
+          className="text-center font-weight-bold"
+          style={{ fontSize: '1.3rem', color: 'purple' }}
+        >
+          Built with <FontAwesomeIcon icon={faHeart} /> by...
+        </p>
+      </Link>
     </div>
   );
 };
 const mapStatetoProps = (state) => {
-  console.log('state(cp) -', state);
   return {
     userDetails: state.login.userDetails,
   };

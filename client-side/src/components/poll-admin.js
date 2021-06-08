@@ -4,6 +4,7 @@ import {
   faPencilAlt,
   faPollH,
   faChartPie,
+  faHeart,
 } from '@fortawesome/free-solid-svg-icons';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -11,27 +12,33 @@ import { ErrorOutline } from '@material-ui/icons/';
 import { faQrcode } from '@fortawesome/free-solid-svg-icons';
 import QRCode from 'qrcode.react';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Link } from 'react-router-dom';
 import { Switch } from 'antd';
 import '../../node_modules/antd/dist/antd.css';
 import axios from 'axios';
 import Chart from 'react-apexcharts';
 import Notification from './notification';
+import Loader from './loader/loader';
 import randomColor from 'randomcolor';
 import SocialShare from './social-share';
 import Header from './header';
 import UserIcon from './user-icon';
 import { connect } from 'react-redux';
 import { LogoutAction } from '../store/actions/LogoutAction';
+import io from 'socket.io-client';
+let socket;
 
 const PollAdmin = (props) => {
+  const ENDPOINT = 'localhost:5000';
   const [toggle, setToggle] = useState(false);
+  const [loader, setLoader] = useState(true);
   const [chart, setChart] = useState({
     options: {
       chart: {
         width: '100%',
         type: 'pie',
       },
+      legend: { position: 'bottom' },
       labels: [],
       responsive: [
         {
@@ -61,7 +68,7 @@ const PollAdmin = (props) => {
   const [showQR, setShowQR] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [localkey, setLocalkey] = useState('');
-  const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
   let totalvotes = 0;
   options.map((x) => {
     return (totalvotes += x.count);
@@ -78,7 +85,7 @@ const PollAdmin = (props) => {
     });
   };
   var cache = JSON.parse(localStorage.getItem(localkey));
-  var temp = JSON.parse(localStorage.getItem('polledited'));
+  var temp = JSON.parse(localStorage.getItem('notify'));
 
   useEffect(() => {
     let series = [],
@@ -86,7 +93,7 @@ const PollAdmin = (props) => {
     options.map((option) => {
       series.push(option.count);
       labels.push(option.options);
-      return series, labels;
+      return { series, labels };
     });
     setChart({
       options: { ...options, labels: labels },
@@ -94,7 +101,11 @@ const PollAdmin = (props) => {
       labels: labels,
     });
   }, [options]);
-
+  useEffect(() => {
+    if (!props.userDetails.username) {
+      history.push('/');
+    }
+  }, [props, history]);
   useEffect(() => {
     setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
     if (cache != null && cache.id === pollid && cache.show === 0) {
@@ -108,28 +119,29 @@ const PollAdmin = (props) => {
         JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
       );
     }
-    if (temp === 0) {
-      setToast({ snackbaropen: true, msg: 'Changes saved!', not: 'success' });
-      localStorage.removeItem('polledited');
+    if (temp) {
+      setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
+      localStorage.removeItem('notify');
     }
-  }, []);
+  }, [question, pollid, cache, temp, localkey]);
   useEffect(() => {
+    socket = io(ENDPOINT);
     var x = props.location.state;
-    //console.log(props.location.state);
     const id = x.pollid;
     setPollid(x.pollid);
-    setKey(x.key);
-    axios
-      .post(`http://localhost:5000/getpoll/${id}`)
-      .then(function (response) {
+
+    socket.emit('getPoll', id);
+    socket.on('receivePoll', (poll) => {
+      if (poll) {
         let medium = [];
-        const data = response.data;
-        setQuestion(data.question);
-        var retrieve = new Date(data.expiration);
+        const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        setQuestion(poll.question);
+        setKey(poll.key);
+        var retrieve = new Date(poll.expiration);
         const date =
           retrieve.getDate() +
           '/' +
-          retrieve.getMonth() +
+          (retrieve.getMonth() + 1) +
           '/' +
           retrieve.getFullYear();
         const time =
@@ -139,20 +151,21 @@ const PollAdmin = (props) => {
             ? `0${retrieve.getMinutes()}`
             : retrieve.getMinutes());
         setExpired({
-          expired: data.expired,
+          expired: poll.expired,
           expiration: date + ' ' + time,
         });
-        data.options.map((option) => {
+        poll.options.map((option) => {
           option.color = randomColor();
           medium.push(option);
           return medium;
         });
         setOptions(medium);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, []);
+        setLoader(false);
+      } else {
+        setLoader(false);
+      }
+    });
+  }, [props, ENDPOINT]);
   const deletePoll = () => {
     localStorage.removeItem(
       question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4)
@@ -163,8 +176,14 @@ const PollAdmin = (props) => {
       .then((res) => {
         console.log(res);
         if (res.data.success) {
-          localStorage.setItem('deletepoll', 0);
-          history.push('/create-poll');
+          localStorage.setItem(
+            'notify',
+            JSON.stringify({ type: 'success', msg: 'Poll deleted!' })
+          );
+          history.push({
+            pathname: '/useraccount',
+            state: { activate: 'dashboard' },
+          });
         }
       })
       .catch((err) => {
@@ -263,12 +282,18 @@ const PollAdmin = (props) => {
 
   return (
     <div>
+      {loader ? <Loader /> : null}
       <Header />
       <UserIcon
         username={props.userDetails.username}
         logout={props.logoutAction}
       />
-      <div className="ui-outer-2">
+      <div className="ui-outer position-relative">
+        <img
+          src="4426.jpg"
+          className="position-absolute d-md-block d-none"
+          alt="opinion-background"
+        />
         <div className="ui-container py-5">
           <div className="d-flex flex-column  flex-md-row justify-content-between align-items-md-center">
             <div className="d-flex flex-column mb-4 mb-md-0">
@@ -278,24 +303,23 @@ const PollAdmin = (props) => {
               </p>
             </div>
             <div className="d-flex align-items-center mr-4 mr-md-4 justify-content-around justify-content-md-center">
-              {totalvotes === 0 ? (
-                <a
-                  aria-label="Edit Poll?"
-                  onClick={() =>
-                    history.push({
-                      pathname: '/edit-poll',
-                      state: {
-                        pollid: pollid,
-                        key: key,
-                      },
-                    })
-                  }
-                  className="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
-                  style={{ fontSize: '1.5rem' }}
-                >
-                  <FontAwesomeIcon icon={faPencilAlt} />
-                </a>
-              ) : null}
+              <button
+                aria-label="Edit Poll?"
+                hidden={!(totalvotes === 0)}
+                onClick={() =>
+                  history.push({
+                    pathname: '/edit-poll',
+                    state: {
+                      pollid: pollid,
+                      key: key,
+                    },
+                  })
+                }
+                className="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
+                style={{ fontSize: '1.5rem' }}
+              >
+                <FontAwesomeIcon icon={faPencilAlt} />
+              </button>
 
               <button
                 aria-label={'Delete Poll?'}
@@ -348,7 +372,7 @@ const PollAdmin = (props) => {
                   <div hidden={toggle}>
                     {options.map((x, index) => (
                       <div
-                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative"
+                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative scale1"
                         key={index}
                         style={{
                           border: x.count > 0 ? `3px solid ${x.color}` : null,
@@ -490,7 +514,7 @@ const PollAdmin = (props) => {
                         </button>
                       </CopyToClipboard>
                     </div>
-                    <div className="d-flex flex-row flex-md-column justify-content-center">
+                    <div className="d-flex flex-row flex-md-column justify-content-center ">
                       <p className="font-weight-bold d-none d-md-inline-block mt-2 mb-4 text-primary-secondary text-left">
                         Share
                       </p>
@@ -523,11 +547,18 @@ const PollAdmin = (props) => {
         {showDelete ? <ShowDelete /> : null}
         {showQR ? <QR /> : null}
       </div>
+      <Link to={{ pathname: '/team' }}>
+        <p
+          className="text-center font-weight-bold"
+          style={{ fontSize: '1.3rem', color: 'purple' }}
+        >
+          Built with <FontAwesomeIcon icon={faHeart} /> by...
+        </p>
+      </Link>
     </div>
   );
 };
 const mapStatetoProps = (state) => {
-  console.log('state(cp) -', state);
   return {
     userDetails: state.login.userDetails,
   };

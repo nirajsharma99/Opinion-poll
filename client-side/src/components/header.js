@@ -1,7 +1,6 @@
 import '../App.css';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPrayingHands } from '@fortawesome/free-solid-svg-icons';
+
 function Header() {
   return (
     <header className="App-header">

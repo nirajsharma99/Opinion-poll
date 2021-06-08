@@ -4,32 +4,42 @@ import {
   faQrcode,
   faPollH,
   faChartPie,
+  faHeart,
 } from '@fortawesome/free-solid-svg-icons';
 import { ErrorOutline } from '@material-ui/icons/';
 import { faCopy } from '@fortawesome/free-regular-svg-icons';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import QRCode from 'qrcode.react';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import axios from 'axios';
+import { useHistory, Link } from 'react-router-dom';
 import queryString from 'query-string';
 import Notification from './notification';
+import PollDeleted from './user-settings/no-polls/polldeleted';
+import Loader from './loader/loader';
 import randomColor from 'randomcolor';
 import SocialShare from './social-share';
+import Report from './reportPoll';
 import Header from './header';
 import { Switch } from 'antd';
 import '../../node_modules/antd/dist/antd.css';
 import Chart from 'react-apexcharts';
+import io from 'socket.io-client';
+let socket;
 
 function PollResult({ location }) {
+  const ENDPOINT = 'localhost:5000';
+  //console.clear();
   const history = useHistory();
   const [toggle, setToggle] = useState(false);
+  const [loader, setLoader] = useState(true);
+  const [report, setReport] = useState(false);
   const [chart, setChart] = useState({
     options: {
       chart: {
         width: '100%',
         type: 'pie',
       },
+      legend: { position: 'bottom' },
       labels: [],
       responsive: [
         {
@@ -49,15 +59,12 @@ function PollResult({ location }) {
     series: [],
     labels: [],
   });
+  const [owner, setOwner] = useState('');
   const [pollid, setPollid] = useState('');
   const [expired, setExpired] = useState({ expired: false, expiration: '' });
   const [question, setQuestion] = useState('');
-  const [options, setOptions] = useState([
-    { id: '', options: '', count: 0, color: '' },
-  ]);
+  const [options, setOptions] = useState([]);
   const [showQR, setShowQR] = useState(false);
-  const [localkey, setLocalkey] = useState('');
-  const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
   let totalvotes = 0;
   options.map((x) => {
     return (totalvotes += x.count);
@@ -72,14 +79,18 @@ function PollResult({ location }) {
       snackbaropen: false,
     });
   };
-  var cache = JSON.parse(localStorage.getItem(localkey));
+  var cache = JSON.parse(
+    localStorage.getItem(
+      question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4)
+    )
+  );
   useEffect(() => {
     let series = [],
       labels = [];
     options.map((option) => {
       series.push(option.count);
       labels.push(option.options);
-      return series, labels;
+      return { series, labels };
     });
     setChart({
       options: { ...options, labels: labels },
@@ -88,7 +99,6 @@ function PollResult({ location }) {
     });
   }, [options]);
   useEffect(() => {
-    setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
     if (cache != null && cache.id === pollid && cache.show === 0) {
       setToast({
         snackbaropen: true,
@@ -96,27 +106,29 @@ function PollResult({ location }) {
         not: 'success',
       });
       localStorage.setItem(
-        localkey,
+        question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4),
         JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
       );
     }
-  });
+  }, [question, pollid, cache]);
 
   useEffect(() => {
+    socket = io(ENDPOINT);
     var x = queryString.parse(location.search);
     const id = x.id;
     setPollid(id);
-    axios
-      .post(`http://localhost:5000/getpoll/${id}`)
-      .then(function (response) {
+    socket.emit('getPoll', id);
+    socket.on('receivePoll', (poll) => {
+      if (poll) {
         let medium = [];
-        const data = response.data;
-        setQuestion(data.question);
-        var retrieve = new Date(data.expiration);
+        const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        setQuestion(poll.question);
+        setOwner(poll.username);
+        var retrieve = new Date(poll.expiration);
         const date =
           retrieve.getDate() +
           '/' +
-          retrieve.getMonth() +
+          (retrieve.getMonth() + 1) +
           '/' +
           retrieve.getFullYear();
         const time =
@@ -126,20 +138,21 @@ function PollResult({ location }) {
             ? `0${retrieve.getMinutes()}`
             : retrieve.getMinutes());
         setExpired({
-          expired: data.expired,
+          expired: poll.expired,
           expiration: date + ' ' + time,
         });
-        data.options.map((option) => {
+        poll.options.map((option) => {
           option.color = randomColor();
           medium.push(option);
           return medium;
         });
         setOptions(medium);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
+        setLoader(false);
+      } else {
+        setLoader(false);
+      }
+    });
+  }, [ENDPOINT, location]);
 
   const QR = () => (
     <div
@@ -167,7 +180,7 @@ function PollResult({ location }) {
   const ShowButton = () => (
     <button
       className={
-        'text-decoration-none h6 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0' +
+        'text-decoration-none h6 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0 btn' +
         (expired.expired ? ' bg-secondary' : ' bg-success')
       }
       onClick={() => history.push('/poll/?id=' + pollid)}
@@ -193,11 +206,30 @@ function PollResult({ location }) {
       not: 'info',
     });
   };
+
   return (
     <div>
+      {loader ? <Loader /> : null}
+      {report ? (
+        <Report
+          setReport={setReport}
+          pollid={pollid}
+          owner={owner}
+          setToast={setToast}
+        />
+      ) : null}
       <Header />
-      <div className="ui-outer-2">
-        <div className="ui-container py-5 position-relative">
+      {options.length > 0 ? null : <PollDeleted />}
+      <div className="ui-outer position-relative">
+        <img
+          src="4426.jpg"
+          className="position-absolute d-md-block d-none"
+          alt="opinion-background"
+        />
+        <div
+          className="ui-container py-5 position-relative"
+          hidden={!(options.length > 0)}
+        >
           <div className="mb-5 mb-md-5 pb-md-0 my-4 ">
             <h2
               className=" mb-5 heading w-100"
@@ -237,7 +269,7 @@ function PollResult({ location }) {
                   <div hidden={toggle}>
                     {options.map((x) => (
                       <div
-                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative"
+                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative scale1"
                         key={x.id}
                         style={{
                           border: x.count > 0 ? `3px solid ${x.color}` : null,
@@ -360,6 +392,7 @@ function PollResult({ location }) {
                             background: 'rgba(128,0,128,0.7)',
                           }}
                           onClick={handleClick}
+                          disabled={expired.expired}
                         >
                           <FontAwesomeIcon icon={faCopy} className="mr-2" />
                           Poll
@@ -406,12 +439,28 @@ function PollResult({ location }) {
                     </div>
                   </div>
                 </div>
+                <div style={{ textAlign: 'right' }}>
+                  <button
+                    className="w-50 mt-3 font-weight-bold px-2 py-1 rounded-lg border bg-secondary text-light"
+                    onClick={() => setReport(true)}
+                  >
+                    Report Poll
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
         {showQR ? <QR /> : null}
       </div>
+      <Link to={{ pathname: '/team' }}>
+        <p
+          className="text-center font-weight-bold"
+          style={{ fontSize: '1.3rem', color: 'purple' }}
+        >
+          Built with <FontAwesomeIcon icon={faHeart} /> by...
+        </p>
+      </Link>
     </div>
   );
 }

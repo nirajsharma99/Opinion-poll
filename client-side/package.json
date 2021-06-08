@@ -37,6 +37,7 @@
     "react-share": "^4.3.1",
     "redux": "^4.1.0",
     "redux-thunk": "^2.3.0",
+    "short-uuid": "^4.2.0",
     "socket.io": "^4.1.2",
     "socket.io-client": "^4.1.2",
     "uuid": "^8.3.2",

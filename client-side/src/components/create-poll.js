@@ -5,12 +5,12 @@ import {
   faPlus,
   faBolt,
   faTrashAlt,
-  faSpider,
+  faHeart,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, useHistory } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import short from 'short-uuid';
 import Slide from '@material-ui/core/Slide';
 import TextField from '@material-ui/core/TextField';
 import Notification from './notification';
@@ -18,21 +18,19 @@ import Header from './header';
 import UserIcon from './user-icon';
 import { connect } from 'react-redux';
 import { LogoutAction } from '../store/actions/LogoutAction';
-import io from 'socket.io-client';
-const endpoint = 'http://localhost:3000';
-var socket = io(endpoint);
+
 function MainContent(props) {
   const history = useHistory();
   const [questions, setQuestion] = useState({
-    id: uuidv4(),
+    id: short.generate(),
     question: '',
     error: false,
     expiration: '',
     expirationError: false,
   });
   const [inputFields, setInputFields] = useState([
-    { id: uuidv4(), options: '', error: false },
-    { id: uuidv4(), options: '', error: false },
+    { id: short.generate(), options: '', error: false, count: 0 },
+    { id: short.generate(), options: '', error: false, count: 0 },
   ]);
   const [toast, setToast] = useState({
     snackbaropen: false,
@@ -46,16 +44,22 @@ function MainContent(props) {
     });
   };
   const showError = (value, error) => value.trim().length === 0 && error;
+  var temp = JSON.parse(localStorage.getItem('notify'));
   useEffect(() => {
-    if (localStorage.getItem('deletepoll') === 0) {
-      setToast({ snackbaropen: true, msg: 'Poll deleted!', not: 'success' });
-      localStorage.removeItem('deletepoll');
+    if (!props.userDetails.username) {
+      history.push('/');
+    }
+  }, [props, history]);
+  useEffect(() => {
+    if (temp) {
+      setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
+      localStorage.removeItem('notify');
     }
 
     if (localStorage.getItem('isAuthenticated') === false) {
       console.log('working');
     }
-  }, []);
+  }, [temp]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -83,15 +87,26 @@ function MainContent(props) {
         const data = {
           question: questions,
           options: inputFields,
-          id: props.userDetails._id,
+          username: props.userDetails.username,
           expiration: questions.expiration,
         };
         axios
           .post('http://localhost:5000/api', data)
-          .then(function (response) {
+          .then((response) => {
             handleClick(slideTransition);
-            window.localStorage.setItem('pollcreated', 0);
-            history.push(`/new/?id=${questions.id}`);
+            window.localStorage.setItem(
+              'notify',
+              JSON.stringify({
+                type: 'success',
+                msg: 'Poll created!',
+              })
+            );
+            history.push({
+              pathname: '/poll-admin',
+              state: {
+                pollid: response.data.pollid,
+              },
+            });
           })
           .catch(function (error) {
             console.log(error);
@@ -118,7 +133,7 @@ function MainContent(props) {
   const handleAddfields = () => {
     setInputFields([
       ...inputFields,
-      { id: uuidv4(), options: '', error: false },
+      { id: short.generate(), options: '', error: false, count: 0 },
     ]);
     setToast({ snackbaropen: true, msg: 'Added another field!', not: 'info' });
   };
@@ -151,7 +166,11 @@ function MainContent(props) {
       />
 
       <div className="ui-outer position-relative">
-        <img src="4426.jpg" className="position-absolute d-md-block d-none" />
+        <img
+          src="4426.jpg"
+          className="position-absolute d-md-block d-none"
+          alt="opinion-background"
+        />
         <div className="ui-container py-5 px-5">
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="mx-auto">
@@ -163,7 +182,7 @@ function MainContent(props) {
                   </p>
                 </div>
                 <Link
-                  to="/poll/?id=54bf4315-04a5-4b9d-882d-19e147942ed8"
+                  to="/poll?id=6UXfyHc3ne7JuBBLHZbe3C"
                   className="text-decoration-none"
                 >
                   <span
@@ -176,7 +195,7 @@ function MainContent(props) {
               </div>
               <div className="mt-4">
                 <div className="d-flex flex-column ">
-                  <label className="mb-3 w-100 font-weight-bold content-text">
+                  <label className="mb-3 font-weight-bold content-text ">
                     Poll Question
                   </label>
                   <TextField
@@ -210,7 +229,7 @@ function MainContent(props) {
                   >
                     <div className=" mb-3">
                       <div className="d-flex flex-column">
-                        <label className="mb-3 w-100 content-text font-weight-bold">
+                        <label className="mb-3 content-text font-weight-bold">
                           Option {index + 1}
                         </label>
                         <div className="">
@@ -258,7 +277,7 @@ function MainContent(props) {
                     <FontAwesomeIcon className="ml-2" icon={faPlus} />
                   </span>
                 </button>
-                <label className="mt-3 w-100 content-text font-weight-bold">
+                <label className="mt-3 d-block content-text font-weight-bold">
                   Set Poll Expiration
                 </label>
                 <TextField
@@ -280,8 +299,7 @@ function MainContent(props) {
                 <button
                   type="submit"
                   /*onClick={handleSubmit}*/
-                  className="px-5 py-3 text-white font-weight-bold border-0 rounded-lg"
-                  style={{ background: 'purple' }}
+                  className=" create-poll-btn rounded-lg"
                 >
                   <FontAwesomeIcon className="mr-2" icon={faBolt} />
                   Create your poll
@@ -290,21 +308,19 @@ function MainContent(props) {
             </div>
           </form>
         </div>
-        <p
-          className="text-center font-weight-bold"
-          style={{ fontSize: '1.3rem', color: 'skyblue' }}
-        >
-          Built By Niraj
-        </p>
-        <p className="text-center">
-          <FontAwesomeIcon className="display-4 text-dark" icon={faSpider} />
-        </p>
+        <Link to={{ pathname: '/team' }}>
+          <p
+            className="text-center font-weight-bold"
+            style={{ fontSize: '1.3rem', color: 'purple' }}
+          >
+            Built with <FontAwesomeIcon icon={faHeart} /> by...
+          </p>
+        </Link>
       </div>
     </div>
   );
 }
 const mapStatetoProps = (state) => {
-  console.log('state(cp) -', state);
   return {
     userDetails: state.login.userDetails,
   };

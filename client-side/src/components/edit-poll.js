@@ -9,55 +9,68 @@ import {
 import { Link, useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
+import short from 'short-uuid';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import IconButton from '@material-ui/core/IconButton';
+import UserIcon from './user-icon';
 import TextField from '@material-ui/core/TextField';
-import queryString from 'query-string';
 import Header from './header';
+import { connect } from 'react-redux';
+import io from 'socket.io-client';
+let socket;
 
 function EditPoll(props) {
+  const ENDPOINT = 'localhost:5000';
   const history = useHistory();
   const [pollid, setPollid] = useState('');
   const [key, setKey] = useState('');
   const [questions, setQuestion] = useState({
-    id: uuidv4(),
     question: '',
     error: false,
+    expiration: '',
+    expirationError: false,
   });
-  const [inputFields, setInputFields] = useState([
-    { id: uuidv4(), options: '', error: false },
-    { id: uuidv4(), options: '', error: false },
-  ]);
+  const [inputFields, setInputFields] = useState([]);
   const [toast, setToast] = useState({
     snackbaropen: false,
     snackbar2open: false,
   });
   useEffect(() => {
+    if (!props.userDetails.username) {
+      history.push('/');
+    }
+  }, [props, history]);
+  useEffect(() => {
+    var totalvotes;
+    socket = io(ENDPOINT);
     var x = props.location.state;
     const id = x.pollid;
+    if (totalvotes > 0) {
+      history.push({
+        pathname: '/poll-admin',
+        state: { pollid: x.pollid, key: x.key },
+      });
+    }
     setPollid(x.pollid);
     setKey(x.key);
-    //console.log(id);
-
-    axios
-      .get(`http://localhost:5000/getpoll/${id}`)
-      .then(function (response) {
-        let medium = [];
-        const data = response.data;
-        console.log(data);
-        setQuestion({ question: data.question });
-        data.options.map((option) => {
-          medium.push(option);
-          return medium;
-        });
-        setInputFields(medium);
-      })
-      .catch(function (error) {
-        console.log(error);
+    socket.emit('getPollToEdit', id);
+    socket.on('receivePollToEdit', (poll) => {
+      let medium = [];
+      setQuestion({
+        ...questions,
+        question: poll.question,
+        expiration: poll.expiration,
       });
-  }, []);
+      poll.options.map((option) => {
+        totalvotes += option.count;
+        medium.push(option);
+        return medium;
+      });
+      setInputFields(medium);
+    });
+  }, [props, setQuestion, history, ENDPOINT]);
+
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
@@ -68,13 +81,11 @@ function EditPoll(props) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    //console.log('Inputfields', inputFields);
-    //console.log('question', questions);
     const emptyQuestion = questions.question.trim().length > 0;
     const emptyOptions = inputFields.every((obj) => {
       return obj.options.length > 0;
     });
+    const emptyExpiration = questions.expiration;
     if (!emptyQuestion) {
       setQuestion({ ...questions, error: true });
     }
@@ -90,28 +101,40 @@ function EditPoll(props) {
         })
       );
     } else {
-      const data = {
-        question: questions,
-        options: inputFields,
-        pollid: pollid,
-      };
-      axios
-        .post('http://localhost:5000/editpoll', data)
-        .then(function (response) {
-          if (response.data.success) {
-            localStorage.setItem('polledited', 0);
-            history.push({
-              pathname: '/poll-admin',
-              state: {
-                pollid: pollid,
-                key: key,
-              },
-            });
-          }
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      if (emptyExpiration) {
+        const data = {
+          question: questions.question,
+          expiration: questions.expiration,
+          options: inputFields,
+          pollid: pollid,
+          key: key,
+        };
+        axios
+          .post('http://localhost:5000/editpoll', data)
+          .then(function (response) {
+            if (response.data.success) {
+              localStorage.setItem(
+                'notify',
+                JSON.stringify({
+                  type: 'success',
+                  msg: 'Changes saved!',
+                })
+              );
+              history.push({
+                pathname: '/poll-admin',
+                state: {
+                  pollid: pollid,
+                  key: key,
+                },
+              });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        setQuestion({ ...questions, expirationError: true });
+      }
     }
   };
 
@@ -124,14 +147,11 @@ function EditPoll(props) {
     });
     setInputFields(newInputFields);
   };
-  const handleQuestion = (id, event) => {
-    setQuestion({ id: id, question: event.target.value });
-  };
 
   const handleAddfields = () => {
     setInputFields([
       ...inputFields,
-      { id: uuidv4(), options: '', error: false },
+      { id: short.generate(), options: '', error: false, count: 0 },
     ]);
     setToast({ snackbar2open: true });
   };
@@ -147,18 +167,24 @@ function EditPoll(props) {
   return (
     <div>
       <Header />
+      <UserIcon
+        username={props.userDetails.username}
+        logout={props.logoutAction}
+      />
       <div className="ui-outer">
         <div className="ui-container py-5 px-5">
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="mx-auto">
-              <div className="d-flex justify-content-between flex-column flex-md-row align-items-baseline">
+              <div className="d-flex justify-content-between flex-row align-items-baseline">
                 <div>
                   <h3>Edit Poll</h3>
                   <p className="mt-4 mb-0 text-large text-secondary font-medium">
                     Edit below fields as you need.
                   </p>
                 </div>
-                <Link to={'/poll-admin/?id=' + pollid + '&key=' + key}>
+                <Link
+                  to={{ pathname: '/poll-admin', state: { pollid: pollid } }}
+                >
                   <span className="text-light bg-danger align-self-end font-weight-bold rounded-lg px-4 py-2">
                     Cancel
                   </span>
@@ -183,7 +209,9 @@ function EditPoll(props) {
                     className="textareastyle w-100 py-4 rounded-lg px-3 outline-none  border border-gray "
                     placeholder="What's you favorite TV Show?"
                     defaultValue={questions.question}
-                    onChange={(event) => handleQuestion(questions.id, event)}
+                    onChange={(e) =>
+                      setQuestion({ ...questions, question: e.target.value })
+                    }
                   />
                 </div>
                 <Snackbar
@@ -278,6 +306,23 @@ function EditPoll(props) {
                     <FontAwesomeIcon className="ml-2" icon={faPlus} />
                   </span>
                 </button>
+                <label className="mt-3 w-100 content-text font-weight-bold">
+                  Set Poll Expiration
+                </label>
+                <TextField
+                  type="datetime-local"
+                  variant="outlined"
+                  error={questions.expirationError}
+                  helperText={questions.expirationError ? 'Required!' : null}
+                  className="bg-light"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={questions.expiration}
+                  onChange={(e) =>
+                    setQuestion({ ...questions, expiration: e.target.value })
+                  }
+                />
               </div>
               <div className="flex justify-content-center mt-5 pt-3 ">
                 <button
@@ -297,4 +342,10 @@ function EditPoll(props) {
   );
 }
 
-export default EditPoll;
+const mapStatetoProps = (state) => {
+  return {
+    userDetails: state.login.userDetails,
+  };
+};
+
+export default connect(mapStatetoProps, null)(EditPoll);

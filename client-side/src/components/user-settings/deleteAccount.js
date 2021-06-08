@@ -8,16 +8,20 @@ const DeleteAccount = (props) => {
   const history = useHistory();
   const [deleteAlert, setDeleteAlert] = useState(false);
   const deleteAccount = () => {
-    let data = { password: password, userID: props.userID };
-    axios.post('/deleteAccount', data).then((res) => {
-      if (res.data.success) {
-        localStorage.setItem('Notify', 'Account deleted');
-        setPassword('');
-        history.push('/');
-      } else {
-        setError(true);
-      }
-    });
+    let data = { password: password, username: props.username };
+    if (password.trim().length > 0) {
+      axios.post('/deleteAccount', data).then((res) => {
+        if (res.data.success) {
+          localStorage.setItem('Notify', 'Account deleted');
+          setPassword('');
+          history.push('/');
+        } else {
+          setError(true);
+        }
+      });
+    } else {
+      setError(true);
+    }
   };
   const ShowDelete = () => (
     <div
@@ -28,10 +32,7 @@ const DeleteAccount = (props) => {
         backgroundColor: 'rgba(135,206,235 ,0.7)',
       }}
     >
-      <div
-        className="d-flex flex-column align-items-center bg-white rounded-lg"
-        style={{ width: '30%' }}
-      >
+      <div className="d-flex flex-column align-items-center bg-white rounded-lg">
         <div className="w-100 d-flex flex-column px-4 pt-4">
           <h5>Delete Account</h5>
           <span className="text-secondary">
@@ -71,7 +72,7 @@ const DeleteAccount = (props) => {
           type="password"
           label="Enter Password"
           variant="filled"
-          className="w-50 mb-3"
+          className="resp-width-50 mb-3"
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
@@ -80,6 +81,7 @@ const DeleteAccount = (props) => {
         <button
           className="btn p-2 bg-danger text-light w-50"
           onClick={() => setDeleteAlert(true)}
+          disabled={!password}
         >
           Delete Account
         </button>

@@ -16,10 +16,11 @@ const SecurityQuestion = (props) => {
       snackbaropen: false,
     });
   };
+  const [password, setPassword] = useState({ password: '', error: false });
   const [question, setQuestion] = useState(
     'When you were young, what did you want to be when you grew up?'
   );
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState({ answer: '', error: false });
   const questions = [
     {
       value: 'When you were young, what did you want to be when you grew up?',
@@ -42,25 +43,38 @@ const SecurityQuestion = (props) => {
     setQuestion(event.target.value);
   };
   const handleSubmit = () => {
-    console.log('nice');
-    const data = {
-      userid: props.userDetails._id,
-      question: question,
-      answer: answer,
-    };
-    axios
-      .post('/security-question', data)
-      .then((res) => {
-        if (res.data.success) {
-          setToast({
-            snackbaropen: true,
-            msg: 'Success!',
-            not: 'success',
-          });
-          setAnswer('');
-        }
-      })
-      .catch((err) => console.log(err));
+    const emptyAnswer = answer.answer.trim().length > 0;
+    const emptyPassword = password.password.trim().length > 0;
+    if (emptyAnswer) {
+      if (emptyPassword) {
+        const data = {
+          username: props.userDetails.username,
+          question: question,
+          answer: answer.answer,
+          password: password.password,
+        };
+        axios
+          .post('/security-question', data)
+          .then((res) => {
+            if (res.data.success) {
+              setToast({
+                snackbaropen: true,
+                msg: 'Success!',
+                not: 'success',
+              });
+              setAnswer({ answer: '', error: false });
+              setPassword({ password: '', error: false });
+            } else {
+              setPassword({ ...password, error: true });
+            }
+          })
+          .catch((err) => console.log(err));
+      } else {
+        setPassword({ ...password, error: true });
+      }
+    } else {
+      setAnswer({ ...answer, error: true });
+    }
   };
   return (
     <div className="p-2 user-settings-bg">
@@ -89,8 +103,7 @@ const SecurityQuestion = (props) => {
           variant="outlined"
           value={question}
           onChange={handleChange}
-          className="mt-3"
-          style={{ width: '60%' }}
+          className="resp-width-50 mt-3"
         >
           {questions.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -99,11 +112,25 @@ const SecurityQuestion = (props) => {
           ))}
         </TextField>
         <TextField
+          error={answer.error}
+          helperText={answer.error ? 'Required!' : null}
           label="Your answer..."
           variant="filled"
-          className="w-50 mt-3 mb-3"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
+          className="resp-width-50 my-3"
+          value={answer.answer}
+          onChange={(e) => setAnswer({ ...answer, answer: e.target.value })}
+        />
+        <TextField
+          error={password.error}
+          helperText={password.error ? 'Incorrect password!' : null}
+          type="password"
+          label="Enter Password"
+          variant="filled"
+          className="resp-width-50 mb-3"
+          value={password.password}
+          onChange={(e) => {
+            setPassword({ ...password, password: e.target.value });
+          }}
         />
         <button
           className="btn p-2 bg-info text-light w-50"
@@ -116,7 +143,6 @@ const SecurityQuestion = (props) => {
   );
 };
 const mapStatetoProps = (state) => {
-  console.log('state(cp) -', state);
   return {
     userDetails: state.login.userDetails,
   };

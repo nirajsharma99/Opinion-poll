@@ -12,6 +12,7 @@ import {
   faComment,
   faPencilAlt,
   faLaughBeam,
+  faTachometerAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
@@ -39,7 +40,12 @@ const UserIcon = (props) => {
                 className="user-icon"
                 onClick={() => setUserIcon(!userIcon)}
               >
-                <img src="owl.ico" width="60px" height="60px" />
+                <img
+                  src="owl.ico"
+                  width="60px"
+                  height="60px"
+                  alt="opinion-logo"
+                />
               </button>
             </div>
             <div className="ml-4 my-auto d-flex">
@@ -52,6 +58,36 @@ const UserIcon = (props) => {
 
         <div className={'options-widget'} hidden={!slider}>
           <div className="d-flex x">
+            <button
+              className="link"
+              onClick={() =>
+                history.push({
+                  pathname: '/useraccount',
+                  state: {
+                    activate: 'dashboard',
+                  },
+                })
+              }
+            >
+              <FontAwesomeIcon
+                icon={faTachometerAlt}
+                className="text-light icons"
+              />
+            </button>
+            <button
+              className="link"
+              onClick={() =>
+                history.push({
+                  pathname: '/create-poll',
+                })
+              }
+            >
+              <FontAwesomeIcon
+                icon={faPencilAlt}
+                className="icons"
+                style={{ color: '#073b4c' }}
+              />
+            </button>
             <button
               className="link"
               onClick={() =>
@@ -121,7 +157,12 @@ const UserIcon = (props) => {
             <div className="slide-option-image d-flex flex-column">
               <div className="slide-image-holder">
                 <button className="user-icon">
-                  <img src="owl.ico" width="100px" height="100px" />
+                  <img
+                    src="owl.ico"
+                    width="100px"
+                    height="100px"
+                    alt="opinion-logo"
+                  />
                 </button>
               </div>
               <span className="mt-3 mb-0 text-light h5">@{props.username}</span>
@@ -146,6 +187,26 @@ const UserIcon = (props) => {
             <hr />
 
             <span className="text-secondary ml-3">Accounts</span>
+            <li className="user-options-2">
+              <button
+                className="link"
+                onClick={() =>
+                  history.push({
+                    pathname: '/useraccount',
+                    state: {
+                      activate: 'dashboard',
+                    },
+                  })
+                }
+              >
+                <FontAwesomeIcon
+                  icon={faTachometerAlt}
+                  size="1x"
+                  className="mr-2"
+                />
+                <span>Dashboard</span>
+              </button>
+            </li>
             <li className="user-options-2">
               <button
                 className="link"
@@ -203,7 +264,7 @@ const UserIcon = (props) => {
                 className="link"
                 onClick={() =>
                   history.push({
-                    pathname: '/our-team',
+                    pathname: '/team',
                   })
                 }
               >

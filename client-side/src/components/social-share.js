@@ -18,7 +18,7 @@ function SocialShare(props) {
         url={props.url}
         title={JSON.stringify(props.question)}
         via="opinion poll"
-        className="bg-primary text-decoration-none font-weight-bold w-100 mb-3 mr-2 py-2 rounded-lg text-center  text-white "
+        className="bg-primary text-decoration-none font-weight-bold w-100 mb-3 mr-2 py-2 rounded-lg text-center text-white "
       >
         <FontAwesomeIcon className="ml-3 mr-3" icon={faTwitter} />
         <span className="d-none d-md-inline-block">Share on Twitter</span>

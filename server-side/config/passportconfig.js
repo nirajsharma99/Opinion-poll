@@ -2,10 +2,31 @@ const User = require('../models/registration');
 const bcrypt = require('bcryptjs');
 const localStrategy = require('passport-local').Strategy;
 const { exists } = require('../models/registration');
+const firebase = require('../utils/firebase');
 module.exports = function (passport) {
   passport.use(
     new localStrategy((username, password, done) => {
-      User.findOne({ username: username }, (err, user) => {
+      firebase
+        .database()
+        .ref('users/')
+        .once('value', (snapshot) => {
+          const verify = snapshot.hasChild(username);
+          if (verify) {
+            const pass = snapshot.child(`${username}/password`).val();
+            const user = { username: username };
+            bcrypt.compare(password, pass, (err, result) => {
+              if (err) throw err;
+              if (result === true) {
+                return done(null, user);
+              } else {
+                return done({ error: 'Incorrect password!!' }, false);
+              }
+            });
+          } else {
+            return done({ error: "User doesn't exists!" }, false);
+          }
+        });
+      /*User.findOne({ username: username }, (err, user) => {
         if (err) throw err;
         if (!user) return done({ error: "User doesn't exists!" }, false);
         bcrypt.compare(password, user.password, (err, result) => {
@@ -16,11 +37,11 @@ module.exports = function (passport) {
             return done({ error: 'Incorrect password!!' }, false);
           }
         });
-      });
+      });*/
     })
   );
   passport.serializeUser((user, cb) => {
-    cb({}, user.id);
+    cb({}, user.username);
   });
   passport.deserializeUser((id, cb) => {
     User.findOne({ _id: id }, (err, user) => {

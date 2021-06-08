@@ -8,16 +8,20 @@ import {
   ErrorOutline,
 } from '@material-ui/icons/';
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { LoginAction } from '../store/actions/LoginAction';
 import { connect } from 'react-redux';
 import axios from 'axios';
 import Notification from './notification';
 import ShowBox from './forgotpassword';
+import Loader from './loader/loader';
+import Loader2 from './loader/loader2';
 
 function FrontPage(props) {
-  //const history = useHistory();
+  const history = useHistory();
   const [signing, setSigning] = useState(true);
   const [show, setShow] = useState(false);
+  const [loader, setLoader] = useState({ loader1: false, loader2: false });
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState({
     showPassword: false,
@@ -59,6 +63,7 @@ function FrontPage(props) {
         registerPassword.password === registerCPassword.password &&
         registerCPassword.password.trim().length >= 8
       ) {
+        setLoader({ ...loader, loader2: true });
         axios({
           method: 'POST',
           data: {
@@ -68,7 +73,7 @@ function FrontPage(props) {
           withCredentials: true,
           url: 'http://localhost:5000/register',
         }).then((res) => {
-          console.log(res);
+          setLoader({ ...loader, loader2: false });
           if (res.data.success) {
             setToast({
               snackbaropen: true,
@@ -107,15 +112,19 @@ function FrontPage(props) {
       loginUsername.trim().length > 0 &&
       loginPassword.password.trim().length > 0
     ) {
+      setLoader({ ...loader, loader1: true });
       let payload = {
         username: loginUsername,
         password: loginPassword.password,
       };
       // window.localStorage.setItem('isAuthenticated', res.data.isAuthenticated);
       props.loginAction(payload).then((result) => {
-        console.log(result);
+        setLoader({ ...loader, loader1: true });
         if (result.success) {
-          props.history.push('/create-poll');
+          history.push({
+            pathname: '/useraccount',
+            state: { activate: 'dashboard' },
+          });
         }
         if (!result.success) {
           setLoginFlash({
@@ -137,6 +146,8 @@ function FrontPage(props) {
 
   return (
     <div className="container-1 d-flex flex-md-row flex-column">
+      {loader.loader1 ? <Loader /> : null}
+      {loader.loader2 ? <Loader2 /> : null}
       <Notification
         switcher={toast.snackbaropen}
         close={snackbarclose}
@@ -164,7 +175,7 @@ function FrontPage(props) {
           </div>
           <div>
             <div className=" d-flex mx-auto flex-column justify-content-center align-items-center">
-              <img src="4428.jpg" className="front-images" />
+              <img src="4428.jpg" className="front-images" alt="login-page" />
               <p
                 className={
                   'flash-message w-75 text-center py-1 rounded-lg text-' +
@@ -256,7 +267,7 @@ function FrontPage(props) {
             <div className="wave wave3"></div>
           </div>
           <div className=" d-flex mx-auto flex-column justify-content-center align-items-center ">
-            <img src="4457.jpg" className="front-images" />
+            <img src="4457.jpg" className="front-images" alt="register-page" />
             <p
               className={
                 'flash-message w-75 text-center py-1 rounded-lg text-' +
@@ -284,11 +295,11 @@ function FrontPage(props) {
             <TextField
               helperText={
                 registerPassword.password.trim().length < 8 &&
-                registerPassword.password.trim().length != 0
+                registerPassword.password.trim().length !== 0
                   ? 'Minimum 8 characters'
                   : null
               }
-              type="password"
+              type={registerPassword.showPassword ? 'text' : 'password'}
               placeholder="password"
               variant="outlined"
               size="small"
@@ -327,11 +338,11 @@ function FrontPage(props) {
             <TextField
               helperText={
                 registerCPassword.password.trim().length < 8 &&
-                registerCPassword.password.trim().length != 0
+                registerCPassword.password.trim().length !== 0
                   ? 'Minimum 8 characters'
                   : null
               }
-              type="password"
+              type={registerCPassword.showPassword ? 'text' : 'password'}
               placeholder="confirm password"
               variant="outlined"
               size="small"
@@ -345,8 +356,8 @@ function FrontPage(props) {
                       className="p-0 m-0"
                       onClick={() =>
                         setRegisterCPassword({
-                          ...registerPassword,
-                          showPassword: !registerPassword.showPassword,
+                          ...registerCPassword,
+                          showPassword: !registerCPassword.showPassword,
                         })
                       }
                       onMouseDown={(e) => e.preventDefault()}
@@ -386,7 +397,6 @@ function FrontPage(props) {
   );
 }
 const mapStatetoProps = (state) => {
-  console.log('state - ', state);
   return {
     userDetails: state.login.userDetails,
   };

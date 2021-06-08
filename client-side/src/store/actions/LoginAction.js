@@ -15,7 +15,6 @@ export const LoginAction = (payload) => (dispatch, getState) => {
       withCredentials: true,
       url: 'http://localhost:5000/login',
     }).then((res) => {
-      console.log(res);
       localStorage.setItem('isAuthenticated', res.data.isAuthenticated);
       let result = { ...payload };
       result._id = res.data.ID;
