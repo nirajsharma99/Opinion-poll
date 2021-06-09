@@ -13,7 +13,7 @@ export const LoginAction = (payload) => (dispatch, getState) => {
         'Content-Type': 'application/json',
       },
       withCredentials: true,
-      url: 'http://localhost:5000/login',
+      url: '/login',
     }).then((res) => {
       localStorage.setItem('isAuthenticated', res.data.isAuthenticated);
       let result = { ...payload };

@@ -71,7 +71,7 @@ function FrontPage(props) {
             password: registerCPassword.password,
           },
           withCredentials: true,
-          url: 'http://localhost:5000/register',
+          url: '/register',
         }).then((res) => {
           setLoader({ ...loader, loader2: false });
           if (res.data.success) {
@@ -133,6 +133,7 @@ function FrontPage(props) {
             type: 'danger',
             msg: result.error,
           });
+          setLoader({ ...loader, loader1: false });
         }
       });
     } else {

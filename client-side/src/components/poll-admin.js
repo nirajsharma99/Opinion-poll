@@ -29,7 +29,7 @@ import io from 'socket.io-client';
 let socket;
 
 const PollAdmin = (props) => {
-  const ENDPOINT = 'localhost:5000';
+  const ENDPOINT = 'https://opinion-poll-app.herokuapp.com/';
   const [toggle, setToggle] = useState(false);
   const [loader, setLoader] = useState(true);
   const [chart, setChart] = useState({
@@ -172,7 +172,7 @@ const PollAdmin = (props) => {
     );
     const data = { key: key };
     axios
-      .post('http://localhost:5000/deletepoll', data)
+      .post('/deletepoll', data)
       .then((res) => {
         console.log(res);
         if (res.data.success) {
@@ -241,7 +241,7 @@ const PollAdmin = (props) => {
       <div className="d-flex flex-column align-items-center bg-white">
         <span className="font-weight-bold ">Scan QR Code</span>
         <QRCode
-          value={`http://localhost:3000/poll/?id=${pollid}`}
+          value={`https://opinion-poll-app.herokuapp.com/poll/?id=${pollid}`}
           size={290}
           level={'H'}
           includeMargin={true}
@@ -484,7 +484,10 @@ const PollAdmin = (props) => {
                     </div>
                     <div className="w-100 d-flex mb-3">
                       <CopyToClipboard
-                        text={'localhost:3000/poll?id=' + pollid}
+                        text={
+                          'https://opinion-poll-app.herokuapp.com/poll?id=' +
+                          pollid
+                        }
                       >
                         <button
                           className="w-100 px-0 py-1 mr-2 btn text-light"
@@ -499,7 +502,10 @@ const PollAdmin = (props) => {
                         </button>
                       </CopyToClipboard>
                       <CopyToClipboard
-                        text={'localhost:3000/poll-result?id=' + pollid}
+                        text={
+                          'https://opinion-poll-app.herokuapp.com/poll-result?id=' +
+                          pollid
+                        }
                       >
                         <button
                           className="w-100 px-0 py-1 btn text-light"
@@ -534,7 +540,10 @@ const PollAdmin = (props) => {
                         </span>
                       </button>
                       <SocialShare
-                        url={'http://localhost:3000/poll/?id=' + pollid}
+                        url={
+                          'https://opinion-poll-app.herokuapp.com/poll/?id=' +
+                          pollid
+                        }
                         question={question}
                       />
                     </div>

@@ -15,7 +15,7 @@ import Loader from './loader/loader';
 let socket;
 
 function Poll({ location }) {
-  const ENDPOINT = 'localhost:5000';
+  const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
   const [expired, setExpired] = useState(false);
   const [report, setReport] = useState(false);
@@ -112,7 +112,7 @@ function Poll({ location }) {
         JSON.stringify(verifier)
       );
       axios
-        .post('http://localhost:5000/submitresponse', response)
+        .post('/submitresponse', response)
         .then(function (res) {
           console.log(res);
         })

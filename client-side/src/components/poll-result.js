@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import {
   faQrcode,
   faPollH,
@@ -27,7 +26,7 @@ import io from 'socket.io-client';
 let socket;
 
 function PollResult({ location }) {
-  const ENDPOINT = 'localhost:5000';
+  const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   //console.clear();
   const history = useHistory();
   const [toggle, setToggle] = useState(false);
@@ -169,7 +168,7 @@ function PollResult({ location }) {
       <div className="d-flex flex-column align-items-center bg-white">
         <span className="font-weight-bold ">Scan QR Code</span>
         <QRCode
-          value={`http://localhost:3000/poll/?id=${pollid}`}
+          value={`https://opinion-poll-app.herokuapp.com/poll/?id=${pollid}`}
           size={290}
           level={'H'}
           includeMargin={true}
@@ -383,7 +382,10 @@ function PollResult({ location }) {
                     </div>
                     <div className="w-100 d-flex mb-3">
                       <CopyToClipboard
-                        text={'localhost:3000/poll?id=' + pollid}
+                        text={
+                          'https://opinion-poll-app.herokuapp.com/poll?id=' +
+                          pollid
+                        }
                       >
                         <button
                           className="w-100 px-0 py-1 mr-2 btn text-light"
@@ -399,7 +401,10 @@ function PollResult({ location }) {
                         </button>
                       </CopyToClipboard>
                       <CopyToClipboard
-                        text={'localhost:3000/poll-result?id=' + pollid}
+                        text={
+                          'https://opinion-poll-app.herokuapp.com/poll-result?id=' +
+                          pollid
+                        }
                       >
                         <button
                           className="w-100 px-0 py-1 btn text-light"
@@ -433,7 +438,10 @@ function PollResult({ location }) {
                         </span>
                       </button>
                       <SocialShare
-                        url={'http://localhost:3000/poll/?id=' + pollid}
+                        url={
+                          'https://opinion-poll-app.herokuapp.com/poll/?id=' +
+                          pollid
+                        }
                         question={question}
                       />
                     </div>

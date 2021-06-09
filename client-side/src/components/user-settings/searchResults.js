@@ -18,7 +18,6 @@ const ShowSearch = ({ poll, index, deletePoll, importance }) => {
       </td>
       <td className="w-50 ">
         <button
-          //href={'/poll-admin?id=' + poll.pollid + '&key=' + poll.key}
           onClick={() =>
             history.push({
               pathname: '/poll-admin',

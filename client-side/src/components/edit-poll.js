@@ -21,7 +21,7 @@ import io from 'socket.io-client';
 let socket;
 
 function EditPoll(props) {
-  const ENDPOINT = 'localhost:5000';
+  const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
   const [pollid, setPollid] = useState('');
   const [key, setKey] = useState('');
@@ -110,7 +110,7 @@ function EditPoll(props) {
           key: key,
         };
         axios
-          .post('http://localhost:5000/editpoll', data)
+          .post('/editpoll', data)
           .then(function (response) {
             if (response.data.success) {
               localStorage.setItem(

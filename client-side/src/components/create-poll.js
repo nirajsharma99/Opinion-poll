@@ -91,7 +91,7 @@ function MainContent(props) {
           expiration: questions.expiration,
         };
         axios
-          .post('http://localhost:5000/api', data)
+          .post('/api', data)
           .then((response) => {
             handleClick(slideTransition);
             window.localStorage.setItem(

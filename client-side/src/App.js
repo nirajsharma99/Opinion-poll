@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import FrontPage from './components/front-page';
 import MainContent from './components/create-poll';
 //import Header from './components/header';
-import DemoPoll from './components/demo-poll';
 import Poll from './components/poll';
 import PollResult from './components/poll-result';
 import PollAdmin from './components/poll-admin';
@@ -19,7 +18,6 @@ function App() {
           <Route path="/" exact component={FrontPage} />
           <Route path="/create-poll" component={MainContent} />
           <Route path="/useraccount" component={UserAccount} />
-          <Route path="/demo-poll" component={DemoPoll} />
           <Route path="/poll" component={Poll} />
           <Route path="/poll-result" component={PollResult} />
           <Route path="/poll-admin" component={PollAdmin} />

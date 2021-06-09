@@ -16,11 +16,13 @@ import SendFeedback from './user-settings/sendFeedback';
 import NoPolls from './user-settings/no-polls/no-polls';
 import ListMiniPolls from './user-settings/list-mini-polls';
 import ShowSearch from './user-settings/searchResults';
+import ShowSearchMini from './user-settings/searchResultsMini';
 let socket;
 
 function UserInfo(props) {
-  const ENDPOINT = 'localhost:5000';
+  const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
+  var target = '';
   const [polls, setPolls] = useState([]);
   const [activateSearch, setActivateSearch] = useState(true);
   const [searchString, setSearchString] = useState('');
@@ -110,7 +112,7 @@ function UserInfo(props) {
   const deletePoll = (key, pollid) => {
     const data = { key: key, pollid: pollid };
     axios
-      .post('http://localhost:5000/deletepoll', data)
+      .post('/deletepoll', data)
       .then((res) => {
         if (res.data.success) {
           setToast({
@@ -136,7 +138,7 @@ function UserInfo(props) {
   };
   //console.log(polls);
   const searchBar = (e) => {
-    var target = e.target.value;
+    target = e.target.value;
     setSearchString(e.target.value);
     const filteredPolls = polls.filter((poll) => {
       return poll.question.includes(target);
@@ -223,11 +225,7 @@ function UserInfo(props) {
               <th></th>
               <th></th>
             </tr>
-            <tr hidden={starredPolls.length > 0 && searchString.length > 0}>
-              <td>
-                <span className="style-tag">Watchlist</span>
-              </td>
-            </tr>
+
             {searchString.length > 0
               ? searchResults.map((poll, index) => (
                   <ShowSearch
@@ -239,65 +237,44 @@ function UserInfo(props) {
                   />
                 ))
               : null}
-            {searchString.length > 0
-              ? null
-              : starredPolls.map((poll, index) => (
-                  <ListPolls
-                    poll={poll}
-                    index={index}
-                    deletePoll={deletePoll}
-                    key={index}
-                    importance={importance}
-                  />
-                ))}
-            <tr>
-              <td>
-                <span
-                  className="style-tag"
-                  hidden={unstarredPolls.length > 0 && searchString.length > 0}
-                >
-                  All Polls
-                </span>
-              </td>
-            </tr>
-            {searchString.length > 0
-              ? null
-              : unstarredPolls.map((poll, index) => (
-                  <ListPolls
-                    poll={poll}
-                    index={index}
-                    deletePoll={deletePoll}
-                    key={index}
-                    importance={importance}
-                  />
-                ))}
+
+            {searchString.length > 0 ? null : (
+              <ListPolls
+                starredpolls={starredPolls}
+                unstarredpolls={unstarredPolls}
+                deletePoll={deletePoll}
+                importance={importance}
+              />
+            )}
           </tbody>
         </table>
         <div className="d-sm-none d-block" hidden={!(polls.length > 0)}>
-          <span className="style-tag" hidden={!(starredPolls.length > 0)}>
+          <span
+            className="style-tag"
+            hidden={starredPolls.length > 0 && target.length > 0}
+          >
             Watchlist
           </span>
-          {starredPolls.map((poll, index) => (
+          {searchString.length > 0
+            ? searchResults.map((poll, index) => (
+                <ShowSearchMini
+                  poll={poll}
+                  index={index}
+                  key={index}
+                  deletePoll={deletePoll}
+                  importance={importance}
+                />
+              ))
+            : null}
+
+          {searchString.length > 0 ? null : (
             <ListMiniPolls
-              index={index}
-              poll={poll}
-              key={index}
+              starredpolls={starredPolls}
+              unstarredpolls={unstarredPolls}
               deletePoll={deletePoll}
               importance={importance}
             />
-          ))}
-          <span className="style-tag" hidden={!(unstarredPolls.length > 0)}>
-            All Polls
-          </span>
-          {unstarredPolls.map((poll, index) => (
-            <ListMiniPolls
-              index={index}
-              poll={poll}
-              key={index}
-              deletePoll={deletePoll}
-              importance={importance}
-            />
-          ))}
+          )}
         </div>
       </div>
     </div>

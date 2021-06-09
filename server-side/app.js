@@ -127,7 +127,6 @@ app.post('/register', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => res.send('hello world!'));
 app.post('/api', (req, res) => {
   const ref = firebase.database().ref('polls').push();
   var today = new Date();
@@ -335,5 +334,8 @@ app.post('/forgot-password', (req, res) => {
     }
   });
 });
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('client/build'));
+}
 
 server.listen(PORT, () => console.log(`listening on port ${PORT}`));
