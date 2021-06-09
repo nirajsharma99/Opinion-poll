@@ -83,6 +83,7 @@ function FrontPage(props) {
             setRegisterUsername('');
             setRegisterPassword({ ...registerPassword, password: '' });
             setRegisterCPassword({ ...registerCPassword, password: '' });
+            setSigning(!signing);
           } else if (!res.data.success) {
             setFlash({
               show: true,
@@ -290,6 +291,7 @@ function FrontPage(props) {
                   </InputAdornment>
                 ),
               }}
+              value={registerUsername}
               onChange={(e) => setRegisterUsername(e.target.value)}
             />
             <TextField

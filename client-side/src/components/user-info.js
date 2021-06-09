@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import HowToVoteIcon from '@material-ui/icons/HowToVote';
+import SearchIcon from '@material-ui/icons/Search';
 import ChangePassword from './user-settings/changePassword';
 import DeleteAccount from './user-settings/deleteAccount';
 import SecurityQuestion from './user-settings/securityQuestion';
@@ -14,12 +15,16 @@ import io from 'socket.io-client';
 import SendFeedback from './user-settings/sendFeedback';
 import NoPolls from './user-settings/no-polls/no-polls';
 import ListMiniPolls from './user-settings/list-mini-polls';
+import ShowSearch from './user-settings/searchResults';
 let socket;
 
 function UserInfo(props) {
   const ENDPOINT = 'localhost:5000';
   const history = useHistory();
   const [polls, setPolls] = useState([]);
+  const [activateSearch, setActivateSearch] = useState(true);
+  const [searchString, setSearchString] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
   const [unstarredPolls, setUnstarredPolls] = useState([]);
   const [starredPolls, setStarredPolls] = useState([]);
   const [toast, setToast] = useState({
@@ -130,6 +135,14 @@ function UserInfo(props) {
       .catch((err) => console.log(err));
   };
   //console.log(polls);
+  const searchBar = (e) => {
+    var target = e.target.value;
+    setSearchString(e.target.value);
+    const filteredPolls = polls.filter((poll) => {
+      return poll.question.includes(target);
+    });
+    setSearchResults(filteredPolls);
+  };
   return (
     <div className="account-info w-100 ml-xl-3 ml-0 mr-3 mb-5 shadow">
       <Notification
@@ -151,6 +164,27 @@ function UserInfo(props) {
       </div>
       <div className="p-2" hidden={!(props.activate === 'mypolls')}>
         {polls.length === 0 ? <NoPolls /> : null}
+        <div className="d-flex align-items-center mb-3">
+          <div className="search-box m-auto" hidden={polls.length === 0}>
+            <input
+              className="search-txt ml-2"
+              type="text"
+              placeholder="Type to search.."
+              value={searchString}
+              onChange={searchBar}
+              hidden={activateSearch}
+            />
+            <div className="search-btn-box">
+              <button
+                className="search-btn"
+                onClick={() => setActivateSearch(!activateSearch)}
+              >
+                <SearchIcon fontSize="default" />
+              </button>
+            </div>
+          </div>
+        </div>
+
         <table
           className="d-sm-block d-none"
           style={{ background: 'rgba(255,255,255,0.8)' }}
@@ -189,39 +223,54 @@ function UserInfo(props) {
               <th></th>
               <th></th>
             </tr>
-            <tr hidden={!(starredPolls.length > 0)}>
+            <tr hidden={starredPolls.length > 0 && searchString.length > 0}>
               <td>
                 <span className="style-tag">Watchlist</span>
               </td>
             </tr>
-            {starredPolls.map((poll, index) => (
-              <ListPolls
-                poll={poll}
-                index={index}
-                deletePoll={deletePoll}
-                key={index}
-                importance={importance}
-              />
-            ))}
+            {searchString.length > 0
+              ? searchResults.map((poll, index) => (
+                  <ShowSearch
+                    poll={poll}
+                    index={index}
+                    key={index}
+                    deletePoll={deletePoll}
+                    importance={importance}
+                  />
+                ))
+              : null}
+            {searchString.length > 0
+              ? null
+              : starredPolls.map((poll, index) => (
+                  <ListPolls
+                    poll={poll}
+                    index={index}
+                    deletePoll={deletePoll}
+                    key={index}
+                    importance={importance}
+                  />
+                ))}
             <tr>
               <td>
                 <span
                   className="style-tag"
-                  hidden={!(unstarredPolls.length > 0)}
+                  hidden={unstarredPolls.length > 0 && searchString.length > 0}
                 >
                   All Polls
                 </span>
               </td>
             </tr>
-            {unstarredPolls.map((poll, index) => (
-              <ListPolls
-                poll={poll}
-                index={index}
-                deletePoll={deletePoll}
-                key={index}
-                importance={importance}
-              />
-            ))}
+            {searchString.length > 0
+              ? null
+              : unstarredPolls.map((poll, index) => (
+                  <ListPolls
+                    poll={poll}
+                    index={index}
+                    deletePoll={deletePoll}
+                    key={index}
+                    importance={importance}
+                  />
+                ))}
           </tbody>
         </table>
         <div className="d-sm-none d-block" hidden={!(polls.length > 0)}>
