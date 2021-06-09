@@ -1,7 +1,5 @@
-const User = require('../models/registration');
 const bcrypt = require('bcryptjs');
 const localStrategy = require('passport-local').Strategy;
-const { exists } = require('../models/registration');
 const firebase = require('../utils/firebase');
 module.exports = function (passport) {
   passport.use(
@@ -26,18 +24,6 @@ module.exports = function (passport) {
             return done({ error: "User doesn't exists!" }, false);
           }
         });
-      /*User.findOne({ username: username }, (err, user) => {
-        if (err) throw err;
-        if (!user) return done({ error: "User doesn't exists!" }, false);
-        bcrypt.compare(password, user.password, (err, result) => {
-          if (err) throw err;
-          if (result === true) {
-            return done(null, user);
-          } else {
-            return done({ error: 'Incorrect password!!' }, false);
-          }
-        });
-      });*/
     })
   );
   passport.serializeUser((user, cb) => {
