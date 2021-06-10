@@ -16,13 +16,13 @@ function App() {
       <div className="App">
         <Switch>
           <Route path="/" exact component={FrontPage} />
-          <Route path="/create-poll" component={MainContent} />
-          <Route path="/useraccount" component={UserAccount} />
-          <Route path="/poll" component={Poll} />
-          <Route path="/poll-result" component={PollResult} />
-          <Route path="/poll-admin" component={PollAdmin} />
-          <Route path="/edit-poll" component={EditPoll} />
-          <Route path="/team" component={Team} />
+          <Route path="/create-poll" exact component={MainContent} />
+          <Route path="/useraccount" exact component={UserAccount} />
+          <Route path="/poll/:id" exact component={Poll} />
+          <Route path="/poll-result/:id" exact component={PollResult} />
+          <Route path="/poll-admin" exact component={PollAdmin} />
+          <Route path="/edit-poll" exact component={EditPoll} />
+          <Route path="/team" exact component={Team} />
         </Switch>
       </div>
     </Router>

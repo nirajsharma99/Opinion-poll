@@ -11,7 +11,6 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import QRCode from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
-import queryString from 'query-string';
 import Notification from './notification';
 import PollDeleted from './user-settings/no-polls/polldeleted';
 import Loader from './loader/loader';
@@ -25,7 +24,7 @@ import Chart from 'react-apexcharts';
 import io from 'socket.io-client';
 let socket;
 
-function PollResult({ location }) {
+function PollResult(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   //console.clear();
   const history = useHistory();
@@ -113,8 +112,8 @@ function PollResult({ location }) {
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    var x = queryString.parse(location.search);
-    const id = x.id;
+    var x = props.match.params.id;
+    const id = x;
     setPollid(id);
     socket.emit('getPoll', id);
     socket.on('receivePoll', (poll) => {
@@ -151,7 +150,7 @@ function PollResult({ location }) {
         setLoader(false);
       }
     });
-  }, [ENDPOINT, location]);
+  }, [ENDPOINT, props]);
 
   const QR = () => (
     <div
@@ -168,7 +167,7 @@ function PollResult({ location }) {
       <div className="d-flex flex-column align-items-center bg-white">
         <span className="font-weight-bold ">Scan QR Code</span>
         <QRCode
-          value={`https://opinion-poll-app.herokuapp.com/poll/?id=${pollid}`}
+          value={`https://opinion-poll-app.herokuapp.com/poll/${pollid}`}
           size={290}
           level={'H'}
           includeMargin={true}
@@ -182,7 +181,7 @@ function PollResult({ location }) {
         'text-decoration-none h6 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0 btn' +
         (expired.expired ? ' bg-secondary' : ' bg-success')
       }
-      onClick={() => history.push('/poll/?id=' + pollid)}
+      onClick={() => history.push('/poll/' + pollid)}
       disabled={expired.expired}
     >
       Submit your vote
@@ -221,7 +220,7 @@ function PollResult({ location }) {
       {options.length > 0 ? null : <PollDeleted />}
       <div className="ui-outer position-relative">
         <img
-          src="4426.jpg"
+          src="../4426.jpg"
           className="position-absolute d-md-block d-none"
           alt="opinion-background"
         />
@@ -383,7 +382,7 @@ function PollResult({ location }) {
                     <div className="w-100 d-flex mb-3">
                       <CopyToClipboard
                         text={
-                          'https://opinion-poll-app.herokuapp.com/poll?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll/' +
                           pollid
                         }
                       >
@@ -402,7 +401,7 @@ function PollResult({ location }) {
                       </CopyToClipboard>
                       <CopyToClipboard
                         text={
-                          'https://opinion-poll-app.herokuapp.com/poll-result?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll-result/' +
                           pollid
                         }
                       >
@@ -439,7 +438,7 @@ function PollResult({ location }) {
                       </button>
                       <SocialShare
                         url={
-                          'https://opinion-poll-app.herokuapp.com/poll/?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll/' +
                           pollid
                         }
                         question={question}

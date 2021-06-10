@@ -241,7 +241,7 @@ const PollAdmin = (props) => {
       <div className="d-flex flex-column align-items-center bg-white">
         <span className="font-weight-bold ">Scan QR Code</span>
         <QRCode
-          value={`https://opinion-poll-app.herokuapp.com/poll/?id=${pollid}`}
+          value={`https://opinion-poll-app.herokuapp.com/poll/${pollid}`}
           size={290}
           level={'H'}
           includeMargin={true}
@@ -256,7 +256,7 @@ const PollAdmin = (props) => {
         'text-decoration-none h6 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0' +
         (expired.expired ? ' bg-secondary' : ' bg-success')
       }
-      onClick={() => history.push('/poll/?id=' + pollid)}
+      onClick={() => history.push('/poll/' + pollid)}
       disabled={expired.expired}
     >
       Submit your vote
@@ -485,7 +485,7 @@ const PollAdmin = (props) => {
                     <div className="w-100 d-flex mb-3">
                       <CopyToClipboard
                         text={
-                          'https://opinion-poll-app.herokuapp.com/poll?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll/' +
                           pollid
                         }
                       >
@@ -503,7 +503,7 @@ const PollAdmin = (props) => {
                       </CopyToClipboard>
                       <CopyToClipboard
                         text={
-                          'https://opinion-poll-app.herokuapp.com/poll-result?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll-result/' +
                           pollid
                         }
                       >
@@ -541,7 +541,7 @@ const PollAdmin = (props) => {
                       </button>
                       <SocialShare
                         url={
-                          'https://opinion-poll-app.herokuapp.com/poll/?id=' +
+                          'https://opinion-poll-app.herokuapp.com/poll/' +
                           pollid
                         }
                         question={question}

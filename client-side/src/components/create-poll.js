@@ -182,7 +182,7 @@ function MainContent(props) {
                   </p>
                 </div>
                 <Link
-                  to="/poll?id=6UXfyHc3ne7JuBBLHZbe3C"
+                  to="/poll/6UXfyHc3ne7JuBBLHZbe3C"
                   className="text-decoration-none"
                 >
                   <span

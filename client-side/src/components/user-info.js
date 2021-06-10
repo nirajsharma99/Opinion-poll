@@ -249,12 +249,6 @@ function UserInfo(props) {
           </tbody>
         </table>
         <div className="d-sm-none d-block" hidden={!(polls.length > 0)}>
-          <span
-            className="style-tag"
-            hidden={starredPolls.length > 0 && target.length > 0}
-          >
-            Watchlist
-          </span>
           {searchString.length > 0
             ? searchResults.map((poll, index) => (
                 <ShowSearchMini

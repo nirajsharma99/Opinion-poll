@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const app = express();
+const path = require('path');
 
 /*-------------------socket-------------------*/
 const handleOperations = require('./controllers/handleOperations');
@@ -42,7 +43,7 @@ io.on('connection', (socket) => {
 });
 
 var corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: '*',
   optionsSuccessStatus: 200, // For legacy browser support
   credentials: true,
 };
@@ -116,7 +117,7 @@ app.post('/register', (req, res) => {
         firebase
           .database()
           .ref('users/' + req.body.username)
-          .set({ password: hashedPassword })
+          .set({ password: hashedPassword, date: Date.now() })
           .then(() =>
             res.send({
               success: true,
@@ -192,29 +193,7 @@ app.post('/deletepoll', (req, res) => {
       .catch(() => console.log({ success: false }));
   });
 });
-app.get('/getpoll/:id', (req, res) => {
-  const x = req.params.id;
-  console.log(x);
-  const ref = firebase
-    .database()
-    .ref('polls')
-    .orderByChild('pollid')
-    .equalTo(x);
-  ref.on('value', (snapshot) => {
-    const data = Object.values(snapshot.val());
-    //console.log(data[0]);
-    const expire = new Date(data[0].expiration) - new Date();
-    let poll = {
-      question: data[0].question,
-      pollid: data[0].pollid,
-      options: data[0].options,
-      expired: expire < 0 ? true : false,
-      expiration: data[0].expiration,
-      key: data[0].key,
-    };
-    res.send(poll);
-  });
-});
+
 /*---------------------------------------------------user-account-settings----------------------------------*/
 app.post('/importance', (req, res) => {
   const ref = firebase.database().ref('polls').child(req.body.key);
@@ -236,7 +215,7 @@ app.post('/changePass', (req, res) => {
         if (result) {
           const hashedPassword = await bcrypt.hash(req.body.newpass, 10);
           snapshot.ref
-            .update({ password: hashedPassword })
+            .update({ password: hashedPassword, updatedpassword: Date.now() })
             .then(() => res.send({ success: true }));
         } else {
           res.send({ success: false });
@@ -337,5 +316,7 @@ app.post('/forgot-password', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static('client/build'));
 }
-
+app.get('*', function (req, res) {
+  res.sendFile(path.join(__dirname, './client/build/index.html'));
+});
 server.listen(PORT, () => console.log(`listening on port ${PORT}`));

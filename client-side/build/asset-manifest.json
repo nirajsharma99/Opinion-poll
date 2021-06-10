@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.9dd03cfc.chunk.css",
+    "main.js": "/static/js/main.0707c082.chunk.js",
+    "main.js.map": "/static/js/main.0707c082.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.fc2cdf29.js",
+    "runtime-main.js.map": "/static/js/runtime-main.fc2cdf29.js.map",
+    "static/css/2.fcc39770.chunk.css": "/static/css/2.fcc39770.chunk.css",
+    "static/js/2.4263c422.chunk.js": "/static/js/2.4263c422.chunk.js",
+    "static/js/2.4263c422.chunk.js.map": "/static/js/2.4263c422.chunk.js.map",
+    "static/js/3.bc7bdcee.chunk.js": "/static/js/3.bc7bdcee.chunk.js",
+    "static/js/3.bc7bdcee.chunk.js.map": "/static/js/3.bc7bdcee.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.fcc39770.chunk.css.map": "/static/css/2.fcc39770.chunk.css.map",
+    "static/css/main.9dd03cfc.chunk.css.map": "/static/css/main.9dd03cfc.chunk.css.map",
+    "static/js/2.4263c422.chunk.js.LICENSE.txt": "/static/js/2.4263c422.chunk.js.LICENSE.txt",
+    "static/media/App.css": "/static/media/HomemadeApple-Regular.722fc8e0.ttf",
+    "static/media/team1.d8bb4086.jpg": "/static/media/team1.d8bb4086.jpg",
+    "static/media/team2.c965eced.jpg": "/static/media/team2.c965eced.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.fc2cdf29.js",
+    "static/css/2.fcc39770.chunk.css",
+    "static/js/2.4263c422.chunk.js",
+    "static/css/main.9dd03cfc.chunk.css",
+    "static/js/main.0707c082.chunk.js"
+  ]
+}

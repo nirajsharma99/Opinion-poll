@@ -4,7 +4,6 @@ import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import queryString from 'query-string';
 import { Link, useHistory } from 'react-router-dom';
 import Notification from './notification';
 import PollDeleted from './user-settings/no-polls/polldeleted';
@@ -14,7 +13,7 @@ import Report from './reportPoll';
 import Loader from './loader/loader';
 let socket;
 
-function Poll({ location }) {
+function Poll(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
   const [expired, setExpired] = useState(false);
@@ -51,22 +50,22 @@ function Poll({ location }) {
   useEffect(() => {
     if (cache != null) {
       if (cache.id === pollid) {
-        history.push('/poll-result?id=' + pollid);
+        history.push('/poll-result/' + pollid);
       }
     }
   }, [pollid, history, cache]);
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    var x = queryString.parse(location.search);
-    const id = x.id;
+    var x = props.match.params.id;
+    const id = x;
     setPollid(id);
     socket.emit('getPoll', id);
     socket.on('receivePoll', (poll) => {
       if (poll) {
         setLoader(false);
         if (poll.expired) {
-          history.push('/poll-result?id=' + poll.pollid);
+          history.push('/poll-result/' + poll.pollid);
         } else {
           let medium = [];
           //const data = response.data;
@@ -85,7 +84,7 @@ function Poll({ location }) {
         setAvailable(false);
       }
     });
-  }, [question, pollid, expired, history, location, ENDPOINT]);
+  }, [question, pollid, expired, history, props, ENDPOINT]);
 
   function settingResponse({ option }, index) {
     setResponse({
@@ -127,7 +126,6 @@ function Poll({ location }) {
       });
     }
   };
-  console.clear();
   return (
     <div>
       {loader ? <Loader /> : null}
@@ -152,11 +150,11 @@ function Poll({ location }) {
               >
                 {question}
               </h2>
-              <div className="flex flex-column w-75 w-sm-100 m-auto">
+              <div className="d-flex flex-column resp-width-75 m-auto">
                 <form>
                   {options.map((option, index) => (
                     <div
-                      className="py-3 w-100 mb-4 shadow-lg hover-zoom px-2  rounded bg-white  radio-label"
+                      className="py-3 w-100 mb-4 shadow-lg px-2  rounded bg-white  radio-label"
                       key={option.id}
                     >
                       <div className="d-flex align-items-center">
@@ -201,7 +199,7 @@ function Poll({ location }) {
                       </button>
                     </div>
                     <div className="col-0 col-md-4 mt-4 px-0">
-                      <Link to={'/poll-result/?id=' + pollid}>
+                      <Link to={'/poll-result/' + pollid}>
                         <h5 className=" display-8 float-right text-secondary font-weight-normal">
                           View Results <FontAwesomeIcon icon={faChevronRight} />
                         </h5>
