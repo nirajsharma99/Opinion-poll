@@ -1,1 +1,1 @@
-src/store/ConfigStore
+src/store/ConfigStore.js
