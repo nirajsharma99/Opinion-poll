@@ -25,14 +25,15 @@ const io = socket(server, {
 
 /*-------------- firebase ---------------*/
 const firebase = require('./utils/firebase');
+const { now } = require('mongoose');
 /*---------------------------------------*/
 
 app.use(express.json());
 
 io.on('connection', (socket) => {
   console.log('socket connection ' + socket.id);
-  socket.on('getPoll', (id) => {
-    handleOperations.getPoll(io, id, socket);
+  socket.on('getPoll', (x) => {
+    handleOperations.getPoll(io, x, socket);
   });
   socket.on('getPolls', (username) => {
     handleOperations.getPolls(io, username, socket);
@@ -117,7 +118,7 @@ app.post('/register', (req, res) => {
         firebase
           .database()
           .ref('users/' + req.body.username)
-          .set({ password: hashedPassword, date: Date.now() })
+          .set({ password: hashedPassword, date: Date() })
           .then(() =>
             res.send({
               success: true,
@@ -130,7 +131,7 @@ app.post('/register', (req, res) => {
 
 app.post('/api', (req, res) => {
   const ref = firebase.database().ref('polls').push();
-  var today = new Date();
+  var today = Date();
   var data = {
     question: req.body.question.question,
     pollid: req.body.question.id,
@@ -182,6 +183,12 @@ app.post('/submitresponse', (req, res) => {
 
   ref.once('value', (snapshot) => {
     snapshot.child(req.body.index).ref.update({ count: req.body.count });
+    firebase
+      .database()
+      .ref(`polls/${req.body.key}/voters`)
+      .push({ username: req.body.username, index: req.body.index })
+      .then(() => res.send({ success: true }))
+      .catch(() => res.send({ success: false }));
   });
 });
 app.post('/deletepoll', (req, res) => {
@@ -215,7 +222,10 @@ app.post('/changePass', (req, res) => {
         if (result) {
           const hashedPassword = await bcrypt.hash(req.body.newpass, 10);
           snapshot.ref
-            .update({ password: hashedPassword, updatedpassword: Date.now() })
+            .update({
+              password: hashedPassword,
+              updatedpassword: Date(),
+            })
             .then(() => res.send({ success: true }));
         } else {
           res.send({ success: false });

@@ -1,28 +1,5 @@
 const firebase = require('../utils/firebase');
 
-exports.addPoll = (io, data, socket) => {
-  console.log('user1' + socket.id);
-  var datas = new savePoll({
-    question: data.question.question,
-    pollid: data.question.id,
-    options: data.options,
-    ID: data.id,
-    expiration: data.expiration,
-  });
-  datas.save((err, x) => {
-    if (err) {
-      //result = {'success':false,'message':'Some Error','error':err};
-      console.log(err);
-    } else {
-      const result = { success: true };
-      console.log(result);
-      savePoll.find({ ID: data.id }).then((x) => {
-        io.to(socket.id).emit('receivePolls', x);
-      });
-      io.emit('pollAdded', result);
-    }
-  });
-};
 exports.getPolls = (io, username, socket) => {
   //console.log('user' + username);
   const ref = firebase
@@ -45,18 +22,36 @@ exports.getPolls = (io, username, socket) => {
   console.log();
 };
 
-exports.getPoll = (io, id, socket) => {
-  //console.log(id);
+exports.getPoll = (io, x, socket) => {
   const ref = firebase
     .database()
     .ref('polls')
     .orderByChild('pollid')
-    .equalTo(id);
+    .equalTo(x.id);
   ref.on('value', (snapshot) => {
     if (snapshot.val()) {
       const data = Object.values(snapshot.val());
-      //console.log(data[0]);
       const expire = new Date(data[0].expiration) - new Date();
+      if (x.username) {
+        var voted, index;
+        const key = Object.keys(snapshot.val())[0];
+        const ref2 = firebase
+          .database()
+          .ref('polls')
+          .child(key)
+          .child('voters')
+          .orderByChild('username')
+          .equalTo(x.username);
+        ref2.on('value', (snap) => {
+          if (snap.val()) {
+            const voter = Object.values(snap.val());
+            voted = voter[0].username === x.username;
+            index = voted ? voter[0].index : null;
+            return { voted, index };
+          }
+        });
+      }
+
       let poll = {
         question: data[0].question,
         pollid: data[0].pollid,
@@ -65,6 +60,8 @@ exports.getPoll = (io, id, socket) => {
         expiration: data[0].expiration,
         key: data[0].key,
         username: data[0].username,
+        voted: voted,
+        index: index,
       };
       io.to(socket.id).emit('receivePoll', poll);
     } else {
