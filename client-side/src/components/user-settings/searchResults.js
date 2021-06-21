@@ -29,12 +29,12 @@ const ShowSearch = ({ poll, index, deletePoll, importance }) => {
           }
           className="text-decoration-none border-0 bg-transparent btn"
         >
-          <div className="text-light bg-info rounded-lg p-2 d-inline-block div-hover-effect">
+          <div className="text-light font-weight-bold bg-info rounded-lg p-2 d-inline-block div-hover-effect">
             {poll.question}
           </div>
         </button>
       </td>
-      <td className="text-dark text-center">
+      <td className="text-dark text-center font-weight-bold">
         {poll.date}
         <br />
         {poll.time}
@@ -45,7 +45,7 @@ const ShowSearch = ({ poll, index, deletePoll, importance }) => {
         />
       </td>
       <td className="text-center">{poll.totalvotes}</td>
-      <td className="text-center">
+      <td className="text-center font-weight-bold">
         {poll.totalvotes === 0 ? (
           <p className="text-secondary">'No votes!'</p>
         ) : (

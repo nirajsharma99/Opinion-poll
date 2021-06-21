@@ -17,18 +17,25 @@ import Loader from './loader/loader';
 import randomColor from 'randomcolor';
 import SocialShare from './social-share';
 import Report from './reportPoll';
+import UserIcon from './user-icon';
 import Header from './header';
 import { Switch } from 'antd';
 import '../../node_modules/antd/dist/antd.css';
 import Chart from 'react-apexcharts';
+import { connect } from 'react-redux';
+import { LogoutAction } from '../store/actions/LogoutAction';
 import io from 'socket.io-client';
 let socket;
 
 function PollResult(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
-  //console.clear();
   const history = useHistory();
   const [toggle, setToggle] = useState(false);
+  const [voted, setVoted] = useState(false);
+  const [index, setIndex] = useState(2);
+  const [username, setUsername] = useState(
+    props.userDetails ? props.userDetails.username : null
+  );
   const [loader, setLoader] = useState(true);
   const [report, setReport] = useState(false);
   const [chart, setChart] = useState({
@@ -77,11 +84,15 @@ function PollResult(props) {
       snackbaropen: false,
     });
   };
-  var cache = JSON.parse(
-    localStorage.getItem(
-      question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4)
-    )
-  );
+
+  var temp = JSON.parse(localStorage.getItem('notify'));
+  useEffect(() => {
+    if (temp) {
+      setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
+      localStorage.removeItem('notify');
+    }
+  }, [temp]);
+
   useEffect(() => {
     let series = [],
       labels = [];
@@ -96,32 +107,21 @@ function PollResult(props) {
       labels: labels,
     });
   }, [options]);
-  useEffect(() => {
-    if (cache != null && cache.id === pollid && cache.show === 0) {
-      setToast({
-        snackbaropen: true,
-        msg: 'Thankyou for voting!',
-        not: 'success',
-      });
-      localStorage.setItem(
-        question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4),
-        JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
-      );
-    }
-  }, [question, pollid, cache]);
 
   useEffect(() => {
     socket = io(ENDPOINT);
     var x = props.match.params.id;
     const id = x;
     setPollid(id);
-    socket.emit('getPoll', id);
+    socket.emit('getPoll', { id: id, username: username });
     socket.on('receivePoll', (poll) => {
       if (poll) {
         let medium = [];
         const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         setQuestion(poll.question);
         setOwner(poll.username);
+        setVoted(poll.voted);
+        setIndex(poll.index);
         var retrieve = new Date(poll.expiration);
         const date =
           retrieve.getDate() +
@@ -194,7 +194,7 @@ function PollResult(props) {
         wordWrap: 'break-word',
       }}
     >
-      You voted for {cache.selected}
+      You voted for {options.length > 0 ? options[index].options : null}
     </span>
   );
   const handleClick = () => {
@@ -217,6 +217,9 @@ function PollResult(props) {
         />
       ) : null}
       <Header />
+      {username ? (
+        <UserIcon username={username} logout={props.logoutAction} />
+      ) : null}
       {options.length > 0 ? null : <PollDeleted />}
       <div className="ui-outer position-relative">
         <img
@@ -230,7 +233,7 @@ function PollResult(props) {
         >
           <div className="mb-5 mb-md-5 pb-md-0 my-4 ">
             <h2
-              className=" mb-5 heading w-100"
+              className=" mb-5 heading resp-width-75"
               style={{
                 wordWrap: 'break-word',
               }}
@@ -238,7 +241,7 @@ function PollResult(props) {
               {question}
             </h2>
             <div className="d-flex flex-column flex-md-row">
-              <div className="d-flex w-100 col-12 col-md-8 flex-column">
+              <div className="d-flex px-0 w-100 col-12 col-md-8 flex-column">
                 <div className="d-block text-center p-3">
                   <div className=" m-auto switch-box">
                     <FontAwesomeIcon
@@ -267,7 +270,7 @@ function PollResult(props) {
                   <div hidden={toggle}>
                     {options.map((x) => (
                       <div
-                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative scale1"
+                        className="bg-white p-4 mb-3 rounded-lg position-relative scale1"
                         key={x.id}
                         style={{
                           border: x.count > 0 ? `3px solid ${x.color}` : null,
@@ -278,25 +281,41 @@ function PollResult(props) {
                         }}
                       >
                         <div className="d-flex w-100 justify-content-between">
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ width: '88%' }}
-                          >
+                          <div className="d-flex align-items-center">
                             <h2
-                              className=" font-weight-bold text-primary-dark"
+                              className="options-text font-weight-bold text-primary-dark"
                               style={{
                                 wordWrap: 'break-word',
-                                width: '80%',
                               }}
                             >
                               {x.options}
                             </h2>
                           </div>
-                          <div className="mt-2">
+                          <div className="d-lg-block d-none">
                             <span
-                              className="px-2 text-primary-dark h5 shadow"
+                              className="px-2 text-primary-dark h4 shadow"
                               style={{
                                 border: '1px solid rgba(0,0,0,0.3)',
+                                borderRadius: '20px',
+                              }}
+                            >
+                              {totalvotes === 0
+                                ? 0
+                                : ((x.count / totalvotes) * 100).toFixed(0)}
+                              %
+                            </span>
+                          </div>
+                          <div className="d-lg-none">
+                            <span
+                              className="px-2 text-primary-dark h4 shadow position-absolute"
+                              style={{
+                                top: '-15px',
+                                right: '-15px',
+                                background: 'white',
+                                border:
+                                  x.count > 0
+                                    ? `3px solid ${x.color}`
+                                    : `1px solid rgba(0,0,0,0.3)`,
                                 borderRadius: '20px',
                               }}
                             >
@@ -323,7 +342,14 @@ function PollResult(props) {
                             &nbsp;
                           </div>
                         </div>
-                        <p className="mt-3 text-green">{x.count} Votes</p>
+                        <p
+                          className="mt-3 mb-0 font-weight-bold h6"
+                          style={{
+                            color: x.count > 0 ? x.color : 'gray',
+                          }}
+                        >
+                          {x.count} Votes
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -360,19 +386,11 @@ function PollResult(props) {
                   message={toast.msg}
                   nottype={toast.not}
                 />
-                {cache != null ? (
-                  cache.id === pollid ? (
-                    <ShowSelection />
-                  ) : (
-                    <ShowButton />
-                  )
-                ) : (
-                  <ShowButton />
-                )}
+                {voted ? <ShowSelection /> : <ShowButton />}
                 <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
                   <div className="d-flex flex-column justify-content-between">
                     <div className="">
-                      <p className="font-weight-normal h5 text-secondary text-left mb-0 text-sm lg:text-base">
+                      <p className="font-weight-bold h5 text-secondary text-left mb-0 text-sm lg:text-base">
                         Total Votes
                       </p>
                       <h1 className="font-weight-bold text-primary-dark">
@@ -387,7 +405,7 @@ function PollResult(props) {
                         }
                       >
                         <button
-                          className="w-100 px-0 py-1 mr-2 btn text-light"
+                          className="w-100 font-weight-bold py-1 mr-2 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',
@@ -406,7 +424,7 @@ function PollResult(props) {
                         }
                       >
                         <button
-                          className="w-100 px-0 py-1 btn text-light"
+                          className="w-100 font-weight-bold py-1 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',
@@ -471,4 +489,12 @@ function PollResult(props) {
     </div>
   );
 }
-export default PollResult;
+const mapStatetoProps = (state) => {
+  return {
+    userDetails: state.login.userDetails,
+  };
+};
+const mapDispatchToProps = {
+  logoutAction: LogoutAction,
+};
+export default connect(mapStatetoProps, mapDispatchToProps)(PollResult);

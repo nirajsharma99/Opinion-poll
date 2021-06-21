@@ -16,7 +16,7 @@ const ListMiniPolls = ({
     <>
       <tr hidden={!(starredpolls.length > 0)}>
         <td>
-          <span className="style-tag">Watchlist</span>
+          <span className="style-tag font-weight-bold">Watchlist</span>
         </td>
       </tr>
       {starredpolls.length > 0
@@ -30,7 +30,7 @@ const ListMiniPolls = ({
               >
                 {poll.expired ? 'Inactive' : 'Active'}
               </span>
-              <div className="col-10 p-md-3 p-0">
+              <div className="col-10 p-md-3 p-2">
                 <button
                   onClick={() =>
                     history.push({
@@ -43,7 +43,6 @@ const ListMiniPolls = ({
                   }
                   className="text-dark font-weight-bold rounded-lg h4 border-0 bg-transparent"
                 >
-                  {index + 1 + '.'}
                   {poll.question}
                 </button>
                 <div className="d-block mt-3">
@@ -88,7 +87,8 @@ const ListMiniPolls = ({
                       >
                         (
                         <span className="text-success font-weight-bold">
-                          {(poll.highest / poll.totalvotes) * 100 + '%'}
+                          {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
+                            '%'}
                         </span>
                         &nbsp;votes )
                       </span>
@@ -132,7 +132,7 @@ const ListMiniPolls = ({
         : null}
       <tr hidden={!(unstarredpolls.length > 0)}>
         <td>
-          <span className="style-tag">All Polls</span>
+          <span className="style-tag font-weight-bold">All Polls</span>
         </td>
       </tr>
       {unstarredpolls.length > 0
@@ -146,7 +146,7 @@ const ListMiniPolls = ({
               >
                 {poll.expired ? 'Inactive' : 'Active'}
               </span>
-              <div className="col-10 p-md-3 p-0">
+              <div className="col-10 p-md-3 p-2">
                 <button
                   onClick={() =>
                     history.push({
@@ -159,7 +159,6 @@ const ListMiniPolls = ({
                   }
                   className="text-dark font-weight-bold rounded-lg h4 border-0 bg-transparent"
                 >
-                  {index + 1 + '.'}
                   {poll.question}
                 </button>
                 <div className="d-block mt-3">
@@ -204,7 +203,8 @@ const ListMiniPolls = ({
                       >
                         (
                         <span className="text-success font-weight-bold">
-                          {(poll.highest / poll.totalvotes) * 100 + '%'}
+                          {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
+                            '%'}
                         </span>
                         &nbsp;votes )
                       </span>

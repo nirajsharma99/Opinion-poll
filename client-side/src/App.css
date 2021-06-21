@@ -104,6 +104,10 @@ a.font-3 {
 .create-poll-btn:hover {
   background: purple;
 }
+/*------------poll-----------------*/
+.poll-options {
+  font-size: 1.75rem;
+}
 /*----------------------poll-admin----------------------*/
 .switch-box {
   width: 150px;
@@ -124,9 +128,6 @@ a.font-3 {
   color: #070a39;
   color: rgba(7, 10, 57, var(--text-opacity));
   text-align: center;
-}
-.inputfield {
-  width: 95%;
 }
 .delete {
   font-size: 1.5rem;
@@ -364,25 +365,39 @@ a.font-3 {
   background-color: rgba(173, 216, 230);
   /*previous color:-  rgba(173, 216, 230)*/
 }
-.radio-label:hover {
-  border: 3px solid skyblue;
-  transform: scale(1.1);
-  animation: overlay 1s;
-}
-.radio-label:focus-within {
-  border: 3px solid skyblue;
-  transform: scale(1.1);
-}
-@keyframes overlay {
-  from {
-    margin-left: 5%;
-    width: 100%;
-  }
 
-  to {
-    margin-left: 0%;
-    width: 100%;
-  }
+.radio-label {
+  box-shadow: 0 0.5rem 0.5rem rgba(0, 0, 0, 0.15) !important;
+}
+.radio-label:hover {
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+.selected {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border: 3px solid rgba(128, 0, 128, 0.7);
+  margin-left: 2%;
+  transition: all 0.3s;
+}
+input[type='radio'] {
+  display: none !important;
+}
+.radio-customised label {
+  padding-left: 40px;
+}
+.radio-customised label::before {
+  position: absolute;
+  content: '';
+  height: 23px;
+  width: 23px;
+  margin-left: 10px;
+  top: 35%;
+  left: 0;
+  border: 2px solid rgba(128, 128, 128, 0.2);
+  border-radius: 50%;
+}
+input[type='radio']:checked + label::before {
+  background-color: rgba(128, 0, 128, 0.6);
+  border: 2px solid rgba(250, 230, 250, 0.4);
 }
 /*-------------------TEAM-------------------*/
 .profile-name {
@@ -606,6 +621,7 @@ a.font-3 {
   background: transparent;
   color: gray;
   margin-bottom: 10px;
+  font-weight: 600;
   /*padding: 5px 50px;*/
 }
 .accounts-btn:hover {
@@ -671,6 +687,7 @@ a.font-3 {
   background: rgba(255, 255, 255, 0.9);
   border: 2.5px solid #4ad97f;
   padding: 0.25rem 1rem;
+  font-weight: 700;
 }
 .inactive-stats {
   color: gray;
@@ -681,6 +698,7 @@ a.font-3 {
   background: rgba(255, 255, 255, 0.9);
   border: 2.5px solid gray;
   padding: 0.25rem 1rem;
+  font-weight: 700;
 }
 /*--------------------SearchBox-----------------------------------*/
 .search-box {
@@ -742,6 +760,12 @@ a.font-3 {
 @media screen and (max-width: 1200px) {
   .account-info-container {
     width: 100%;
+  }
+  h2.options-text {
+    font-size: 1.3rem !important;
+  }
+  .poll-options {
+    font-size: 1.5rem;
   }
 }
 @media screen and (min-width: 1200px) {

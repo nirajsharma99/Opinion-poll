@@ -15,7 +15,7 @@ const ListPolls = ({
     <>
       <tr hidden={!(starredpolls.length > 0)}>
         <td>
-          <span className="style-tag">Watchlist</span>
+          <span className="style-tag font-weight-bold">Watchlist</span>
         </td>
       </tr>
 
@@ -44,12 +44,12 @@ const ListPolls = ({
                   }
                   className="text-decoration-none border-0 bg-transparent btn"
                 >
-                  <div className="text-light bg-info rounded-lg p-2 d-inline-block div-hover-effect">
+                  <div className="text-light font-weight-bold bg-info rounded-lg p-2 d-inline-block div-hover-effect">
                     {poll.question}
                   </div>
                 </button>
               </td>
-              <td className="text-dark text-center">
+              <td className="text-dark text-center font-weight-bold">
                 {poll.date}
                 <br />
                 {poll.time}
@@ -59,8 +59,10 @@ const ListPolls = ({
                   className={poll.expired ? 'text-danger' : 'text-success'}
                 />
               </td>
-              <td className="text-center">{poll.totalvotes}</td>
-              <td className="text-center">
+              <td className="text-center font-weight-bold">
+                {poll.totalvotes}
+              </td>
+              <td className="text-center font-weight-bold">
                 {poll.totalvotes === 0 ? (
                   <p className="text-secondary">'No votes!'</p>
                 ) : (
@@ -75,22 +77,23 @@ const ListPolls = ({
                 </p>
               </td>
               <td className="p-0 m-0 text-center">
-                <button
-                  aria-label="Edit Poll?"
-                  onClick={() =>
-                    history.push({
-                      pathname: '/edit-poll',
-                      state: {
-                        pollid: poll.pollid,
-                        key: poll.key,
-                      },
-                    })
-                  }
-                  hidden={!(poll.totalvotes === 0)}
-                  className="outline-none rounded  text-warning border-0 bg-transparent h5 m-auto"
-                >
-                  <FontAwesomeIcon icon={faPencilAlt} />
-                </button>
+                {poll.totalvotes > 0 ? null : (
+                  <button
+                    aria-label="Edit Poll?"
+                    onClick={() =>
+                      history.push({
+                        pathname: '/edit-poll',
+                        state: {
+                          pollid: poll.pollid,
+                          key: poll.key,
+                        },
+                      })
+                    }
+                    className="outline-none rounded  text-warning border-0 bg-transparent h5 m-auto"
+                  >
+                    <FontAwesomeIcon icon={faPencilAlt} />
+                  </button>
+                )}
               </td>
               <td className="p-0 m-0 text-center">
                 <button
@@ -105,7 +108,7 @@ const ListPolls = ({
         : null}
       <tr hidden={!(unstarredpolls.length > 0)}>
         <td>
-          <span className="style-tag">All Polls</span>
+          <span className="style-tag font-weight-bold">All Polls</span>
         </td>
       </tr>
 
@@ -134,12 +137,12 @@ const ListPolls = ({
                   }
                   className="text-decoration-none border-0 bg-transparent btn"
                 >
-                  <div className="text-light bg-info rounded-lg p-2 d-inline-block div-hover-effect">
+                  <div className="text-light bg-info font-weight-bold rounded-lg p-2 d-inline-block div-hover-effect">
                     {poll.question}
                   </div>
                 </button>
               </td>
-              <td className="text-dark text-center">
+              <td className="text-dark text-center font-weight-bold">
                 {poll.date}
                 <br />
                 {poll.time}
@@ -149,8 +152,10 @@ const ListPolls = ({
                   className={poll.expired ? 'text-danger' : 'text-success'}
                 />
               </td>
-              <td className="text-center">{poll.totalvotes}</td>
-              <td className="text-center">
+              <td className="text-center font-weight-bold">
+                {poll.totalvotes}
+              </td>
+              <td className="text-center font-weight-bold">
                 {poll.totalvotes === 0 ? (
                   <p className="text-secondary">'No votes!'</p>
                 ) : (
@@ -165,22 +170,23 @@ const ListPolls = ({
                 </p>
               </td>
               <td className="p-0 m-0 text-center">
-                <button
-                  aria-label="Edit Poll?"
-                  onClick={() =>
-                    history.push({
-                      pathname: '/edit-poll',
-                      state: {
-                        pollid: poll.pollid,
-                        key: poll.key,
-                      },
-                    })
-                  }
-                  hidden={!(poll.totalvotes === 0)}
-                  className="outline-none rounded  text-warning border-0 bg-transparent h5 m-auto"
-                >
-                  <FontAwesomeIcon icon={faPencilAlt} />
-                </button>
+                {poll.totalvotes > 0 ? null : (
+                  <button
+                    aria-label="Edit Poll?"
+                    onClick={() =>
+                      history.push({
+                        pathname: '/edit-poll',
+                        state: {
+                          pollid: poll.pollid,
+                          key: poll.key,
+                        },
+                      })
+                    }
+                    className="outline-none rounded  text-warning border-0 bg-transparent h5 m-auto"
+                  >
+                    <FontAwesomeIcon icon={faPencilAlt} />
+                  </button>
+                )}
               </td>
               <td className="p-0 m-0 text-center">
                 <button

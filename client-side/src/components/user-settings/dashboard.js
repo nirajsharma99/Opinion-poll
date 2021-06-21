@@ -64,7 +64,7 @@ const Dashboard = (props) => {
           <NoPolls />
         ) : (
           <>
-            <span className="style-tag">New Polls</span>
+            <span className="style-tag font-weight-bold">New Polls</span>
             <div className="d-flex flex-column">
               {top3.map((top, index) => (
                 <div

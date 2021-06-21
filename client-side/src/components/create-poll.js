@@ -171,13 +171,16 @@ function MainContent(props) {
           className="position-absolute d-md-block d-none"
           alt="opinion-background"
         />
-        <div className="ui-container py-5 px-5">
+        <div className="ui-container py-4 px-md-5">
           <form onSubmit={handleSubmit} autoComplete="off">
             <div className="mx-auto">
               <div className="d-flex justify-content-between flex-column flex-md-row align-items-baseline">
                 <div>
                   <h3>Create Poll</h3>
-                  <p className="mt-4 mb-0 text-large text-secondary font-medium">
+                  <p
+                    className="mt-4 mb-3 h5 text-secondary"
+                    style={{ opacity: 0.7 }}
+                  >
                     Complete below fields to create a poll
                   </p>
                 </div>
@@ -187,7 +190,7 @@ function MainContent(props) {
                 >
                   <span
                     className=" align-self-end font-weight-normal"
-                    style={{ fontSize: '1.3rem' }}
+                    style={{ fontSize: '1.2rem' }}
                   >
                     View a Demo Poll
                   </span>
@@ -232,7 +235,7 @@ function MainContent(props) {
                         <label className="mb-3 content-text font-weight-bold">
                           Option {index + 1}
                         </label>
-                        <div className="">
+                        <div className="d-flex">
                           <TextField
                             {...(showError(
                               inputField.options,
@@ -245,23 +248,24 @@ function MainContent(props) {
                             })}
                             id={inputField.id}
                             name="options"
-                            className=" py-3 rounded-lg px-3 bg-light inputfield focus-shadow  focus-outline-none  border "
+                            className=" py-3 rounded-lg px-2 bg-light w-100 focus-shadow  focus-outline-none  border "
                             placeholder={'Option' + (index + 1)}
                             value={inputField.options}
                             onChange={(event) =>
                               handleChangeInput(inputField.id, event)
                             }
                           />
-                          <button
-                            hidden={inputFields.length === 2}
-                            onClick={() => handleRemoveFields(inputField.id)}
-                            className=" delete ml-2"
-                          >
-                            <FontAwesomeIcon
-                              className=" text-danger"
-                              icon={faTrashAlt}
-                            />
-                          </button>
+                          {inputFields.length === 2 ? null : (
+                            <button
+                              onClick={() => handleRemoveFields(inputField.id)}
+                              className="delete"
+                            >
+                              <FontAwesomeIcon
+                                className=" text-danger"
+                                icon={faTrashAlt}
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

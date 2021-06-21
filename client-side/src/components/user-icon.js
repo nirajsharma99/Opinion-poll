@@ -14,21 +14,14 @@ import {
   faLaughBeam,
   faTachometerAlt,
 } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
 
 const UserIcon = (props) => {
   const history = useHistory();
   const [userIcon, setUserIcon] = useState(false);
   const [slider, setSlider] = useState(false);
   const logOut = () => {
-    axios.get('/logout').then((res) => {
-      if (res.data.success) {
-        localStorage.removeItem('master_class');
-        localStorage.setItem('isAuthenticated', false);
-
-        history.push('/');
-      }
-    });
+    localStorage.removeItem('master_class');
+    history.push('/');
   };
   return (
     <div>
@@ -41,7 +34,7 @@ const UserIcon = (props) => {
                 onClick={() => setUserIcon(!userIcon)}
               >
                 <img
-                  src="owl.ico"
+                  src="../owl.ico"
                   width="60px"
                   height="60px"
                   alt="opinion-logo"
@@ -158,7 +151,7 @@ const UserIcon = (props) => {
               <div className="slide-image-holder">
                 <button className="user-icon">
                   <img
-                    src="owl.ico"
+                    src="../owl.ico"
                     width="100px"
                     height="100px"
                     alt="opinion-logo"

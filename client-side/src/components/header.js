@@ -11,7 +11,7 @@ function Header() {
               Opinion Poll
             </a>
           </div>
-          <p className="mt-2 mb-0 font-italic" style={{ fontSize: '1.125rem' }}>
+          <p className="mb-0" style={{ fontSize: '1rem', fontWeight: '600' }}>
             Create anonymous polls for free
           </p>
         </div>

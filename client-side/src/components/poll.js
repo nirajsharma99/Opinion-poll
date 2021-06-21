@@ -11,14 +11,23 @@ import Header from './header';
 import io from 'socket.io-client';
 import Report from './reportPoll';
 import Loader from './loader/loader';
+import UserIcon from './user-icon';
+import { connect } from 'react-redux';
+import { LogoutAction } from '../store/actions/LogoutAction';
+import { ErrorOutline } from '@material-ui/icons/';
 let socket;
 
 function Poll(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
+  const [username, setUsername] = useState(
+    props.userDetails ? props.userDetails.username : null
+  );
+  const [voted, setVoted] = useState(false);
   const [expired, setExpired] = useState(false);
   const [report, setReport] = useState(false);
   const [loader, setLoader] = useState(true);
+  const [flash, setFlash] = useState(false);
   const [available, setAvailable] = useState(true);
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState([{ id: '', options: '', count: 0 }]);
@@ -35,32 +44,24 @@ function Poll(props) {
     msg: '',
     not: '',
   });
-  const [verifier, setVerifier] = useState({ id: '', selected: '', show: 0 });
   const snackbarclose = (event) => {
     setToast({
       snackbaropen: false,
     });
   };
-  var cache = JSON.parse(
-    localStorage.getItem(
-      question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4)
-    )
-  );
 
   useEffect(() => {
-    if (cache != null) {
-      if (cache.id === pollid) {
-        history.push('/poll-result/' + pollid);
-      }
+    if (voted) {
+      history.push('/poll-result/' + pollid);
     }
-  }, [pollid, history, cache]);
+  }, [pollid, history, voted]);
 
   useEffect(() => {
     socket = io(ENDPOINT);
     var x = props.match.params.id;
     const id = x;
     setPollid(id);
-    socket.emit('getPoll', id);
+    socket.emit('getPoll', { id: id, username: username });
     socket.on('receivePoll', (poll) => {
       if (poll) {
         setLoader(false);
@@ -73,6 +74,7 @@ function Poll(props) {
           setQuestion(poll.question);
           setKey(poll.key);
           setExpired(poll.expired);
+          setVoted(poll.voted);
           poll.options.map((option) => {
             medium.push(option);
             return medium;
@@ -94,36 +96,44 @@ function Poll(props) {
       pollid: pollid,
       key: key,
       index: index,
+      username: username,
     });
-    setVerifier({ id: pollid, selected: option.options, show: 0 });
   }
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (response.options.length > 0) {
-      e.preventDefault();
-      setToast({
-        snackbaropen: true,
-        msg: 'Thankyou for your vote!, vote submitted!',
-        not: 'success',
-      });
-      localStorage.setItem(
-        question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4),
-        JSON.stringify(verifier)
-      );
-      axios
-        .post('/submitresponse', response)
-        .then(function (res) {
-          console.log(res);
-        })
-        .catch(function (error) {
-          console.log(error);
+    if (username) {
+      if (response.options.length > 0) {
+        e.preventDefault();
+        axios
+          .post('/submitresponse', response)
+          .then(function (res) {
+            if (res.data.success) {
+              localStorage.setItem(
+                'notify',
+                JSON.stringify({
+                  type: 'success',
+                  msg: 'Thankyou, for voting!',
+                })
+              );
+              history.push('/poll-result/' + pollid);
+            } else {
+              console.log('Error submitting response');
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        setToast({
+          snackbaropen: true,
+          msg: 'Please, select a option!',
+          not: 'error',
         });
+      }
+      setFlash(false);
     } else {
-      setToast({
-        snackbaropen: true,
-        msg: 'Please, select a option!',
-        not: 'error',
-      });
+      setFlash(true);
     }
   };
   return (
@@ -138,6 +148,9 @@ function Poll(props) {
         />
       ) : null}
       <Header />
+      {username ? (
+        <UserIcon username={username} logout={props.logoutAction} />
+      ) : null}
       <div className="ui-outer-2">
         <div className="ui-container pt-5 pb-5">
           {available > 0 ? (
@@ -154,10 +167,16 @@ function Poll(props) {
                 <form>
                   {options.map((option, index) => (
                     <div
-                      className="py-3 w-100 mb-4 shadow-lg px-2  rounded bg-white  radio-label"
+                      className={
+                        'w-100 mb-4 px-2 shadow-lg rounded bg-white radio-label' +
+                        (response.options === option.options
+                          ? ' selected'
+                          : ' ')
+                      }
                       key={option.id}
+                      tabIndex="1"
                     >
-                      <div className="d-flex align-items-center">
+                      <div className="d-flex align-items-center radio-customised position-relative">
                         <input
                           type="radio"
                           id={option.id}
@@ -169,10 +188,9 @@ function Poll(props) {
                         />
                         <label
                           htmlFor={option.id}
-                          className=" font-weight-bold  text-primary-dark d-inline-block h3"
+                          className="py-3 font-weight-bold w-100 mb-0 text-primary-dark d-inline-block poll-options"
                           style={{
                             wordWrap: 'break-word',
-                            width: '93%',
                             cursor: 'pointer',
                           }}
                         >
@@ -187,8 +205,33 @@ function Poll(props) {
                     message={toast.msg}
                     nottype={toast.not}
                   />
-
-                  <div className="mt-5 d-flex flex-column flex-md-row">
+                  {flash ? (
+                    <div className="d-flex justify-content-center">
+                      <span
+                        className="text-center  mx-md-auto py-1 px-3 font-weight-bold mb-2"
+                        style={{
+                          color: '#ff4444',
+                          borderRadius: '20px',
+                          background: 'rgba(255, 68, 68, 0.2)',
+                        }}
+                      >
+                        <ErrorOutline fontSize="small" className="mr-2" />
+                        Please, Sign in to vote!, click{' '}
+                        <button
+                          className="bg-transparent text-info border-0 px-0 font-weight-bold"
+                          onClick={() =>
+                            history.push({
+                              pathname: '/',
+                              state: { pollid: pollid },
+                            })
+                          }
+                        >
+                          here
+                        </button>
+                      </span>
+                    </div>
+                  ) : null}
+                  <div className="mt-3 d-flex flex-column flex-md-row">
                     <div className="col-0 col-md-8 d-flex px-0 justify-content-center justify-content-md-start">
                       <button
                         type="submit"
@@ -225,4 +268,12 @@ function Poll(props) {
     </div>
   );
 }
-export default Poll;
+const mapStatetoProps = (state) => {
+  return {
+    userDetails: state.login.userDetails,
+  };
+};
+const mapDispatchToProps = {
+  logoutAction: LogoutAction,
+};
+export default connect(mapStatetoProps, mapDispatchToProps)(Poll);

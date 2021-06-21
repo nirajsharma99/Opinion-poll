@@ -15,7 +15,6 @@ export const LoginAction = (payload) => (dispatch, getState) => {
       withCredentials: true,
       url: '/login',
     }).then((res) => {
-      localStorage.setItem('isAuthenticated', res.data.isAuthenticated);
       let result = { ...payload };
       result._id = res.data.ID;
       result.username = res.data.username;

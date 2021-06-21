@@ -123,7 +123,9 @@ function FrontPage(props) {
         setLoader({ ...loader, loader1: true });
         if (result.success) {
           history.push({
-            pathname: '/useraccount',
+            pathname: props.location.state
+              ? `poll/${props.location.state.pollid}`
+              : '/useraccount',
             state: { activate: 'dashboard' },
           });
         }

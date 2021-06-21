@@ -31,6 +31,11 @@ let socket;
 const PollAdmin = (props) => {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com/';
   const [toggle, setToggle] = useState(false);
+  const [voted, setVoted] = useState(false);
+  const [index, setIndex] = useState(2);
+  const [username, setUsername] = useState(
+    props.userDetails ? props.userDetails.username : null
+  );
   const [loader, setLoader] = useState(true);
   const [chart, setChart] = useState({
     options: {
@@ -67,7 +72,6 @@ const PollAdmin = (props) => {
   const [expired, setExpired] = useState({ expired: false, expiration: '' });
   const [showQR, setShowQR] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [localkey, setLocalkey] = useState('');
 
   let totalvotes = 0;
   options.map((x) => {
@@ -84,8 +88,6 @@ const PollAdmin = (props) => {
       snackbaropen: false,
     });
   };
-  var cache = JSON.parse(localStorage.getItem(localkey));
-  var temp = JSON.parse(localStorage.getItem('notify'));
 
   useEffect(() => {
     let series = [],
@@ -106,36 +108,28 @@ const PollAdmin = (props) => {
       history.push('/');
     }
   }, [props, history]);
+
+  var temp = JSON.parse(localStorage.getItem('notify'));
   useEffect(() => {
-    setLocalkey(question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4));
-    if (cache != null && cache.id === pollid && cache.show === 0) {
-      setToast({
-        snackbaropen: true,
-        msg: 'Thankyou for voting!',
-        not: 'success',
-      });
-      localStorage.setItem(
-        localkey,
-        JSON.stringify({ id: cache.id, selected: cache.selected, show: 1 })
-      );
-    }
     if (temp) {
       setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
       localStorage.removeItem('notify');
     }
-  }, [question, pollid, cache, temp, localkey]);
+  }, [temp]);
+
   useEffect(() => {
     socket = io(ENDPOINT);
     var x = props.location.state;
     const id = x.pollid;
     setPollid(x.pollid);
-
-    socket.emit('getPoll', id);
+    socket.emit('getPoll', { id: id, username: username });
     socket.on('receivePoll', (poll) => {
       if (poll) {
         let medium = [];
         const numbersToAddZeroTo = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         setQuestion(poll.question);
+        setVoted(poll.voted);
+        setIndex(poll.index);
         setKey(poll.key);
         var retrieve = new Date(poll.expiration);
         const date =
@@ -165,7 +159,7 @@ const PollAdmin = (props) => {
         setLoader(false);
       }
     });
-  }, [props, ENDPOINT]);
+  }, [props, ENDPOINT, username]);
   const deletePoll = () => {
     localStorage.removeItem(
       question.toLowerCase().trim().slice(0, 2) + pollid.slice(0, 4)
@@ -174,7 +168,6 @@ const PollAdmin = (props) => {
     axios
       .post('/deletepoll', data)
       .then((res) => {
-        console.log(res);
         if (res.data.success) {
           localStorage.setItem(
             'notify',
@@ -199,10 +192,7 @@ const PollAdmin = (props) => {
         backgroundColor: 'rgba(135,206,235 ,0.7)',
       }}
     >
-      <div
-        className="d-flex flex-column align-items-center bg-white rounded-lg"
-        style={{ width: '30%' }}
-      >
+      <div className="d-flex flex-column align-items-center bg-white rounded-lg">
         <div className="w-100 d-flex flex-column px-4 pt-4">
           <h5>Delete Poll</h5>
           <span className="text-secondary">
@@ -269,7 +259,7 @@ const PollAdmin = (props) => {
         wordWrap: 'break-word',
       }}
     >
-      You voted for {cache.selected}
+      You voted for {options.length > 0 ? options[index].options : null}
     </span>
   );
   const handleClick = () => {
@@ -302,24 +292,25 @@ const PollAdmin = (props) => {
                 You can only edit your poll if it has no votes!
               </p>
             </div>
-            <div className="d-flex align-items-center mr-4 mr-md-4 justify-content-around justify-content-md-center">
-              <button
-                aria-label="Edit Poll?"
-                hidden={!(totalvotes === 0)}
-                onClick={() =>
-                  history.push({
-                    pathname: '/edit-poll',
-                    state: {
-                      pollid: pollid,
-                      key: key,
-                    },
-                  })
-                }
-                className="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
-                style={{ fontSize: '1.5rem' }}
-              >
-                <FontAwesomeIcon icon={faPencilAlt} />
-              </button>
+            <div className="d-flex align-items-center justify-content-around justify-content-md-center">
+              {totalvotes > 0 ? null : (
+                <button
+                  aria-label="Edit Poll?"
+                  onClick={() =>
+                    history.push({
+                      pathname: '/edit-poll',
+                      state: {
+                        pollid: pollid,
+                        key: key,
+                      },
+                    })
+                  }
+                  className="text-primary-dark p-2 outline-none rounded hover-shadow text-warning border-0 bg-transparent"
+                  style={{ fontSize: '1.5rem' }}
+                >
+                  <FontAwesomeIcon icon={faPencilAlt} />
+                </button>
+              )}
 
               <button
                 aria-label={'Delete Poll?'}
@@ -334,7 +325,7 @@ const PollAdmin = (props) => {
           </div>
           <div className="mb-5 mb-md-5 pb-md-0 my-4">
             <h2
-              className=" mb-5 heading w-75 ml-auto mr-auto"
+              className=" mb-5 heading resp-width-75 ml-auto mr-auto"
               style={{
                 wordWrap: 'break-word',
               }}
@@ -343,7 +334,7 @@ const PollAdmin = (props) => {
             </h2>
 
             <div className="d-flex w-100 flex-md-row flex-column ">
-              <div className="d-flex w-100 col-12 col-md-8 flex-column">
+              <div className="d-flex px-0 w-100 col-12 col-md-8 flex-column">
                 <div className="d-block text-center p-3">
                   <div className=" m-auto switch-box">
                     <FontAwesomeIcon
@@ -372,7 +363,7 @@ const PollAdmin = (props) => {
                   <div hidden={toggle}>
                     {options.map((x, index) => (
                       <div
-                        className="py-0 bg-white px-3 mb-3 rounded-lg position-relative scale1"
+                        className="bg-white p-4 mb-3 rounded-lg position-relative scale1"
                         key={index}
                         style={{
                           border: x.count > 0 ? `3px solid ${x.color}` : null,
@@ -383,25 +374,41 @@ const PollAdmin = (props) => {
                         }}
                       >
                         <div className="d-flex w-100 justify-content-between">
-                          <div
-                            className="d-flex align-items-center"
-                            style={{ width: '88%' }}
-                          >
+                          <div className="d-flex align-items-center">
                             <h2
-                              className=" font-weight-bold text-primary-dark"
+                              className="options-text font-weight-bold text-primary-dark"
                               style={{
                                 wordWrap: 'break-word',
-                                width: '80%',
                               }}
                             >
                               {x.options}
                             </h2>
                           </div>
-                          <div className="mt-2">
+                          <div className="d-lg-block d-none">
                             <span
-                              className="px-2 text-primary-dark h5 shadow"
+                              className="px-2 text-primary-dark h4 shadow"
                               style={{
                                 border: '1px solid rgba(0,0,0,0.3)',
+                                borderRadius: '20px',
+                              }}
+                            >
+                              {totalvotes === 0
+                                ? 0
+                                : ((x.count / totalvotes) * 100).toFixed(0)}
+                              %
+                            </span>
+                          </div>
+                          <div className="d-lg-none">
+                            <span
+                              className="px-2 text-primary-dark h4 shadow position-absolute"
+                              style={{
+                                top: '-15px',
+                                right: '-15px',
+                                background: 'white',
+                                border:
+                                  x.count > 0
+                                    ? `3px solid ${x.color}`
+                                    : `1px solid rgba(0,0,0,0.3)`,
                                 borderRadius: '20px',
                               }}
                             >
@@ -426,7 +433,12 @@ const PollAdmin = (props) => {
                             }}
                           ></div>
                         </div>
-                        <p className="mt-3 text-green">{x.count} Votes</p>
+                        <p
+                          className="mt-3 mb-0 font-weight-bold h6"
+                          style={{ color: x.count > 0 ? x.color : 'gray' }}
+                        >
+                          {x.count} Votes
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -463,19 +475,11 @@ const PollAdmin = (props) => {
                   message={toast.msg}
                   nottype={toast.not}
                 />
-                {cache != null ? (
-                  cache.id === pollid ? (
-                    <ShowSelection />
-                  ) : (
-                    <ShowButton />
-                  )
-                ) : (
-                  <ShowButton />
-                )}
+                {voted ? <ShowSelection /> : <ShowButton />}
                 <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
                   <div className="d-flex flex-column justify-content-between">
                     <div className="">
-                      <p className="font-weight-normal h5 text-secondary text-left mb-0 text-sm lg:text-base">
+                      <p className="font-weight-bold h5 text-secondary text-left mb-0 text-sm lg:text-base">
                         Total Votes
                       </p>
                       <h1 className=" font-weight-bold text-primary-dark">
@@ -490,7 +494,7 @@ const PollAdmin = (props) => {
                         }
                       >
                         <button
-                          className="w-100 px-0 py-1 mr-2 btn text-light"
+                          className="w-100 font-weight-bold py-1 mr-2 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',
@@ -508,7 +512,7 @@ const PollAdmin = (props) => {
                         }
                       >
                         <button
-                          className="w-100 px-0 py-1 btn text-light"
+                          className="w-100 font-weight-bold py-1 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',

@@ -138,10 +138,10 @@ function UserInfo(props) {
   };
   //console.log(polls);
   const searchBar = (e) => {
-    target = e.target.value;
+    target = e.target.value.toLowerCase();
     setSearchString(e.target.value);
     const filteredPolls = polls.filter((poll) => {
-      return poll.question.includes(target);
+      return poll.question.toLowerCase().includes(target);
     });
     setSearchResults(filteredPolls);
   };

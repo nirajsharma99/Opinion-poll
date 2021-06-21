@@ -59,7 +59,7 @@ const UserAccount = (props) => {
           className="position-absolute d-sm-block d-none"
           alt="opinion-background"
         />
-        <div className="py-5 px-3 d-flex flex-xl-row flex-column m-auto">
+        <div className="py-md-5 px-3 d-flex flex-xl-row flex-column m-auto">
           <div className=" account-info-btn d-flex flex-xl-column flex-row  ">
             <li className="accounts-btn-li">
               <button
