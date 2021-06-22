@@ -64,9 +64,7 @@ const PollAdmin = (props) => {
     labels: [],
   });
   const [question, setQuestion] = useState('');
-  const [options, setOptions] = useState([
-    { id: '', options: '', count: 0, color: '' },
-  ]);
+  const [options, setOptions] = useState([]);
   const [key, setKey] = useState('');
   const [pollid, setPollid] = useState('');
   const [expired, setExpired] = useState({ expired: false, expiration: '' });
@@ -243,7 +241,7 @@ const PollAdmin = (props) => {
   const ShowButton = () => (
     <button
       className={
-        'text-decoration-none h6 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0' +
+        'text-decoration-none h5 font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white border-0' +
         (expired.expired ? ' bg-secondary' : ' bg-success')
       }
       onClick={() => history.push('/poll/' + pollid)}
@@ -455,7 +453,7 @@ const PollAdmin = (props) => {
               </div>
               <div className="d-flex flex-column w-100 col-12 col-md-4 mb-0 rounded-lg ">
                 <span
-                  className="text-center w-75 mx-auto py-1 font-weight-bold mb-2"
+                  className="text-center mx-auto px-2 py-1 font-weight-bold mb-2"
                   style={{
                     color: expired.expired ? '#ff4444' : '#33b5e5',
                     borderRadius: '20px',
@@ -494,7 +492,7 @@ const PollAdmin = (props) => {
                         }
                       >
                         <button
-                          className="w-100 font-weight-bold py-1 mr-2 btn text-light"
+                          className="w-100 font-weight-bold px-0 py-1 mr-2 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',
@@ -512,7 +510,7 @@ const PollAdmin = (props) => {
                         }
                       >
                         <button
-                          className="w-100 font-weight-bold py-1 btn text-light"
+                          className="w-100 font-weight-bold px-0 py-1 btn text-light"
                           style={{
                             borderRadius: '20px',
                             background: 'rgba(128,0,128,0.7)',

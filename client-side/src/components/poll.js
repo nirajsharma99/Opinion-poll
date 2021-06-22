@@ -168,7 +168,7 @@ function Poll(props) {
                   {options.map((option, index) => (
                     <div
                       className={
-                        'w-100 mb-4 px-2 shadow-lg rounded bg-white radio-label' +
+                        'w-100 mb-4 shadow-lg rounded bg-white radio-label' +
                         (response.options === option.options
                           ? ' selected'
                           : ' ')
@@ -236,22 +236,25 @@ function Poll(props) {
                       <button
                         type="submit"
                         onClick={handleSubmit}
-                        className="focus-outline-none py-3 font-weight-bold focus-shadow w-50 bg-success border-0 text-white px-2 shadow-lg hover-shadow-lg rounded-lg"
+                        className="h5 focus-outline-none py-3 font-weight-bold focus-shadow r-w-50 bg-success border-0 text-white px-2 shadow-lg hover-shadow-lg rounded-lg"
                       >
                         Submit your vote
                       </button>
                     </div>
-                    <div className="col-0 col-md-4 mt-4 px-0">
-                      <Link to={'/poll-result/' + pollid}>
-                        <h5 className=" display-8 float-right text-secondary font-weight-normal">
+                    <div className="col-0 col-md-4 my-md-auto my-3 px-0">
+                      <Link
+                        to={'/poll-result/' + pollid}
+                        className="d-flex justify-content-end"
+                      >
+                        <h4 className=" mb-0 text-secondary font-weight-normal">
                           View Results <FontAwesomeIcon icon={faChevronRight} />
-                        </h5>
+                        </h4>
                       </Link>
                     </div>
                   </div>
                 </form>
               </div>
-              <div className="d-block" style={{ textAlign: 'right' }}>
+              <div className="d-block mb-3" style={{ textAlign: 'right' }}>
                 <button
                   className="font-weight-bold px-2 py-1 rounded-lg border bg-secondary text-light"
                   onClick={() => setReport(true)}

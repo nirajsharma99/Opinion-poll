@@ -188,7 +188,7 @@ function UserInfo(props) {
         </div>
 
         <table
-          className="d-sm-block d-none"
+          className="d-md-block d-none"
           style={{ background: 'rgba(255,255,255,0.8)' }}
           hidden={!(polls.length > 0)}
         >
@@ -248,7 +248,7 @@ function UserInfo(props) {
             )}
           </tbody>
         </table>
-        <div className="d-sm-none d-block" hidden={!(polls.length > 0)}>
+        <div className="d-md-none d-block" hidden={!(polls.length > 0)}>
           {searchString.length > 0
             ? searchResults.map((poll, index) => (
                 <ShowSearchMini
