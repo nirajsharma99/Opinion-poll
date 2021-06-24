@@ -419,6 +419,42 @@ input[type='radio']:checked + label::before {
   line-height: 25px;
   font-weight: 700 !important;
 }
+.team-anim-1 {
+  left: -1000px;
+  -webkit-animation: slide1 1s forwards;
+  -webkit-animation-delay: 2s;
+  animation: slide1 1s forwards;
+  animation-delay: 2s;
+}
+.team-anim-2 {
+  right: -1000px;
+  -webkit-animation: slide2 1s forwards;
+  -webkit-animation-delay: 2s;
+  animation: slide2 1s forwards;
+  animation-delay: 2s;
+}
+@-webkit-keyframes slide1 {
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes slide1 {
+  100% {
+    left: 0;
+  }
+}
+@-webkit-keyframes slide2 {
+  100% {
+    right: 0;
+  }
+}
+
+@keyframes slide2 {
+  100% {
+    right: 0;
+  }
+}
 
 /*--------------------Flogin page----------------------------*/
 .logo {

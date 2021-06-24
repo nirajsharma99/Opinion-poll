@@ -8,7 +8,7 @@ import {
 const Team = () => {
   return (
     <div className="d-flex flex-md-row flex-column App justify-content-around align-items-center w-75 m-auto">
-      <div className="d-flex flex-column align-items-center px-3 py-5 col-lg-6">
+      <div className="d-flex flex-column align-items-center px-3 py-5 col-lg-6 team-anim-1">
         <img
           src={team1}
           width="150px"
@@ -30,7 +30,7 @@ const Team = () => {
           </a>
         </div>
       </div>
-      <div className="d-flex flex-column align-items-center px-3 py-5 col-lg-6">
+      <div className="d-flex flex-column align-items-center px-3 py-5 col-lg-6 team-anim-2">
         <img
           src={team2}
           width="150px"
