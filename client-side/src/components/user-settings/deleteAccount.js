@@ -7,16 +7,23 @@ const DeleteAccount = (props) => {
   const [error, setError] = useState(false);
   const history = useHistory();
   const [deleteAlert, setDeleteAlert] = useState(false);
-  const deleteAccount = () => {
+  const deleteAccount = () => {  
     let data = { password: password, username: props.username };
     if (password.trim().length > 0) {
       axios.post('/deleteAccount', data).then((res) => {
         if (res.data.success) {
-          localStorage.setItem('Notify', 'Account deleted');
+          localStorage.setItem(
+            'notify',
+            JSON.stringify({
+              type: 'success',
+              msg: 'Account deleted!',
+            })
+          );
           setPassword('');
           history.push('/');
         } else {
           setError(true);
+          setDeleteAlert(false);
         }
       });
     } else {
@@ -35,7 +42,7 @@ const DeleteAccount = (props) => {
       <div className="d-flex flex-column align-items-center bg-white rounded-lg">
         <div className="w-100 d-flex flex-column px-4 pt-4">
           <h5>Delete Account</h5>
-          <span className="text-secondary">
+          <span className="text-secondary" style={{fontSize:"0.9rem",fontWeight:"600"}}>
             Are you sure you want to delete your Account?
           </span>
           <div className="px-3 py-3 d-flex justify-content-end">

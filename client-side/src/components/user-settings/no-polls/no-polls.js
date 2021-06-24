@@ -11,7 +11,7 @@ const NoPolls = () => {
         <FontAwesomeIcon icon={faSadCry} />
       </span>
       <button
-        className="text-light bg-purple border-0 px-3 py-2 mt-3"
+        className="text-light font-weight-bold h5 bg-purple border-0 px-3 py-1 mt-3"
         style={{ borderRadius: '20px' }}
         onClick={() => history.push('/create-poll')}
       >

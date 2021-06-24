@@ -185,6 +185,7 @@ a.font-3 {
   border: none;
   background: transparent;
   padding: 5px 5px;
+  font-weight: 600;
 }
 .user-options {
   list-style: none;

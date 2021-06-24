@@ -246,7 +246,10 @@ app.post('/deleteAccount', (req, res) => {
             .remove()
             .then(() => res.send({ success: true }))
             .catch(() => res.send({ success: false }));
+        }else{
+          res.send({success:false});
         }
+        
       });
     }
   });

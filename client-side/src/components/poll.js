@@ -66,6 +66,13 @@ function Poll(props) {
       if (poll) {
         setLoader(false);
         if (poll.expired) {
+          localStorage.setItem(
+            'notify',
+            JSON.stringify({
+              type: 'error',
+              msg: 'Sorry, the poll has expired!',
+            })
+          );
           history.push('/poll-result/' + poll.pollid);
         } else {
           let medium = [];

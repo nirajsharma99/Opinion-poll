@@ -7,7 +7,7 @@ import {
   AccountCircle,
   ErrorOutline,
 } from '@material-ui/icons/';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { LoginAction } from '../store/actions/LoginAction';
 import { connect } from 'react-redux';
@@ -52,6 +52,15 @@ function FrontPage(props) {
       snackbaropen: false,
     });
   };
+
+  var temp = JSON.parse(localStorage.getItem('notify'));
+  useEffect(() => {
+    if (temp) {
+      setToast({ snackbaropen: true, msg: temp.msg, not: temp.type });
+      localStorage.removeItem('notify');
+    }
+  }, [temp]);
+
   const register = () => {
     //console.log(registerUsername.trim().length > 0);
     if (
@@ -93,11 +102,19 @@ function FrontPage(props) {
           }
         });
       } else {
+        if(registerCPassword.password.trim().length >= 8 || registerPassword.password.trim().length >= 8){
+          setFlash({
+            show: true,
+            type: 'danger',
+            msg: 'Password mismatch!',
+          });
+        }else{
         setFlash({
           show: true,
           type: 'danger',
-          msg: 'Password mismatch!',
+          msg: 'Password should be minimum 8 characters!',
         });
+      }
       }
     } else {
       setFlash({
@@ -118,7 +135,6 @@ function FrontPage(props) {
         username: loginUsername,
         password: loginPassword.password,
       };
-      // window.localStorage.setItem('isAuthenticated', res.data.isAuthenticated);
       props.loginAction(payload).then((result) => {
         setLoader({ ...loader, loader1: true });
         if (result.success) {
