@@ -3,7 +3,13 @@ import { Link, useHistory } from 'react-router-dom';
 import Header from './header';
 import UserIcon2 from './user-icon-settings';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart } from '@fortawesome/free-solid-svg-icons';
+import {
+  faHeart,
+  faHome,
+  faPollH,
+  faCog,
+  faEnvelopeOpenText,
+} from '@fortawesome/free-solid-svg-icons';
 import UserInfo from './user-info';
 import Notification from './notification';
 import Loader from './loader/loader';
@@ -40,6 +46,52 @@ const UserAccount = (props) => {
   }, [temp]);
   return (
     <div className="position-relative">
+      <div className=" account-info-btn-sm d-sm-none d-flex flex-xl-column flex-row  ">
+        <li className="accounts-btn-li-sm">
+          <button
+            className={
+              'accounts-btn-sm ' +
+              (tabActive === 'dashboard' ? ' activTab-sm' : '')
+            }
+            onClick={() => setTabActive('dashboard')}
+          >
+            <FontAwesomeIcon icon={faHome} />
+          </button>
+        </li>
+        <li className="accounts-btn-li-sm">
+          <button
+            className={
+              'accounts-btn-sm' +
+              (tabActive === 'mypolls' ? ' activTab-sm' : '')
+            }
+            onClick={() => setTabActive('mypolls')}
+          >
+            <FontAwesomeIcon icon={faPollH} />
+          </button>
+        </li>
+        <li className="accounts-btn-li-sm">
+          <button
+            className={
+              'accounts-btn-sm' +
+              (tabActive === 'feedback' ? ' activTab-sm' : '')
+            }
+            onClick={() => setTabActive('feedback')}
+          >
+            <FontAwesomeIcon icon={faEnvelopeOpenText} />
+          </button>
+        </li>
+        <li className="accounts-btn-li-sm ">
+          <button
+            className={
+              'accounts-btn-sm' +
+              (tabActive === 'settings' ? ' activTab-sm' : '')
+            }
+            onClick={() => setTabActive('settings')}
+          >
+            <FontAwesomeIcon icon={faCog} />
+          </button>
+        </li>
+      </div>
       {loader ? <Loader /> : null}
       <Notification
         switcher={toast.snackbaropen}
@@ -60,7 +112,7 @@ const UserAccount = (props) => {
           alt="opinion-background"
         />
         <div className="py-md-5 px-3 d-flex flex-xl-row flex-column m-auto">
-          <div className=" account-info-btn d-flex flex-xl-column flex-row  ">
+          <div className=" account-info-btn d-sm-flex d-none flex-xl-column flex-row  ">
             <li className="accounts-btn-li">
               <button
                 className={
@@ -110,7 +162,7 @@ const UserAccount = (props) => {
           />
         </div>
       </div>
-      <Link to={{ pathname: '/team' }}>
+      <Link to={{ pathname: '/team' }} className="d-sm-block d-none">
         <p
           className="text-center font-weight-bold"
           style={{ fontSize: '1.3rem', color: 'purple' }}

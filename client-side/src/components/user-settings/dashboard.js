@@ -59,7 +59,7 @@ const Dashboard = (props) => {
           <span className="text-secondary mb-3">Inactive Polls</span>
         </div>
       </div>
-      <div>
+      <div className="mb-5">
         {top3.length === 0 ? (
           <NoPolls />
         ) : (

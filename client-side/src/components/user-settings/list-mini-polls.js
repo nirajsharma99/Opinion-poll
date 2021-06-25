@@ -72,26 +72,23 @@ const ListMiniPolls = ({
                       <HowToVoteIcon fontSize="small" className="mr-2 " />
                       Most Voted
                     </span>
-                    <span className="font-weight-bold">
-                      {poll.totalvotes === 0 ? (
-                        <span className="text-secondary">'No votes!'</span>
-                      ) : (
-                        poll.mostvoted
-                      )}
-                      <span
-                        className={
-                          'mx-auto p-1 text-dark text-center rounded-lg' +
-                          (poll.totalvotes === 0 ? ' d-none' : '')
-                        }
-                        style={{ fontSize: 'normal' }}
-                      >
-                        (
-                        <span className="text-success font-weight-bold">
-                          {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
-                            '%'}
-                        </span>
-                        &nbsp;votes )
-                      </span>
+
+                    {poll.totalvotes === 0 ? (
+                      <span className="text-secondary">'No votes!'</span>
+                    ) : (
+                      <span className="font-weight-bold">{poll.mostvoted}</span>
+                    )}
+                    <span
+                      className="ml-2 p-1 bg-success font-weight-bold text-light text-center rounded-lg"
+                      hidden={poll.totalvotes === 0}
+                      style={{
+                        fontSize: 'xx-small',
+                        width: '40px',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
+                        '% votes'}
                     </span>
                   </p>
                 </div>
@@ -188,26 +185,23 @@ const ListMiniPolls = ({
                       <HowToVoteIcon fontSize="small" className="mr-2 " />
                       Most Voted
                     </span>
-                    <span className="font-weight-bold">
-                      {poll.totalvotes === 0 ? (
-                        <span className="text-secondary">'No votes!'</span>
-                      ) : (
-                        poll.mostvoted
-                      )}
-                      <span
-                        className={
-                          'mx-auto p-1 text-dark text-center rounded-lg' +
-                          (poll.totalvotes === 0 ? ' d-none' : '')
-                        }
-                        style={{ fontSize: 'normal' }}
-                      >
-                        (
-                        <span className="text-success font-weight-bold">
-                          {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
-                            '%'}
-                        </span>
-                        &nbsp;votes )
-                      </span>
+
+                    {poll.totalvotes === 0 ? (
+                      <span className="text-secondary">'No votes!'</span>
+                    ) : (
+                      <span className="font-weight-bold">{poll.mostvoted}</span>
+                    )}
+                    <span
+                      className="ml-2 p-1 bg-success font-weight-bold text-light text-center rounded-lg"
+                      hidden={poll.totalvotes === 0}
+                      style={{
+                        fontSize: 'xx-small',
+                        width: '40px',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {((poll.highest / poll.totalvotes) * 100).toFixed(0) +
+                        '% votes'}
                     </span>
                   </p>
                 </div>
