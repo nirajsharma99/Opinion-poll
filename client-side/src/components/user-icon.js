@@ -213,7 +213,7 @@ const UserIcon = (props) => {
                 }
               >
                 <FontAwesomeIcon icon={faPollH} size="1x" className="mr-2" />
-                <span>My polls</span>
+                <span className="ml-1">My polls</span>
               </button>
             </li>
 

@@ -12,12 +12,14 @@ import {
 } from '@material-ui/icons/';
 import { useState } from 'react';
 import axios from 'axios';
+import Loader2 from './loader/loader2';
 
 const ShowBox = (props) => {
   const [resetPassword, setResetPassword] = useState({
     showPassword: false,
     password: '',
   });
+  const [loader, setLoader] = useState(false);
   const [flash, setFlash] = useState({ show: false, type: '', msg: '' });
   const [resetCPassword, setResetCPassword] = useState({
     showPassword: false,
@@ -63,11 +65,14 @@ const ShowBox = (props) => {
         msg: 'Please fill all the fields!',
       });
     } else {
+      setLoader(true);
       axios.post('/forgot-password', data).then((res) => {
         if (res.data.success) {
+          setLoader(false);
           setShowSet(true);
           setFlash({ show: false, type: '', msg: '' });
         } else {
+          setLoader(false);
           setFlash({ show: true, type: 'danger', msg: res.data.msg });
         }
       });
@@ -100,6 +105,17 @@ const ShowBox = (props) => {
                 msg: 'Password reset!, please login..',
                 not: 'success',
               });
+            } else {
+              setLoginUsername('');
+              setResetCPassword({ ...resetCPassword, password: '' });
+              setResetPassword({ ...resetPassword, password: '' });
+              setFlash({ ...flash, show: false });
+              props.setShow(false);
+              props.setToast({
+                snackbaropen: true,
+                msg: 'Error occured!',
+                not: 'error',
+              });
             }
           })
           .catch((err) => {
@@ -119,193 +135,198 @@ const ShowBox = (props) => {
         backgroundColor: 'rgba(135,206,235 ,0.7)',
       }}
     >
+      {loader ? <Loader2 /> : null}
       <div className="d-flex flex-column align-items-center bg-white rounded-lg resp-width-75">
-        <div className="w-75" hidden={showSet}>
-          <h5 className="text-left w-75 mt-4">Forgot Password</h5>
-          <div className="w-100 d-flex flex-column px-4 pt-3">
-            <p
-              className={
-                'flash-message text-center py-1 rounded-lg text-' +
-                flash.type +
-                (flash.show ? '' : ' d-none')
-              }
-            >
-              <ErrorOutline fontSize="small" className="mr-1" />
-              {flash.msg}
-            </p>
-            <TextField
-              required
-              placeholder="username"
-              variant="outlined"
-              size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AccountCircle style={{ color: 'rgb(128,0,128 )' }} />
-                  </InputAdornment>
-                ),
-              }}
-              className="mb-3 w-100"
-              value={loginUsername}
-              onChange={(e) => setLoginUsername(e.target.value)}
-            />
-            <TextField
-              label="Question"
-              select
-              variant="outlined"
-              value={question}
-              onChange={handleChange}
-              className="mt-3"
-              style={{ width: '100%' }}
-            >
-              {questions.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="Your answer..."
-              variant="filled"
-              className="w-100 mt-3 mb-3"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-            />
-            <div className="px-3 py-3 d-flex justify-content-end">
-              <button
-                className="border-light rounded-lg shadow-lg px-4 py-2 "
-                onClick={() => props.setShow(false)}
+        {showSet ? null : (
+          <div className="w-75">
+            <h5 className="text-left w-75 mt-4">Forgot Password</h5>
+            <div className="w-100 d-flex flex-column px-4 pt-3">
+              <p
+                className={
+                  'flash-message text-center py-1 rounded-lg text-' +
+                  flash.type +
+                  (flash.show ? '' : ' d-none')
+                }
               >
-                Cancel
-              </button>
+                <ErrorOutline fontSize="small" className="mr-1" />
+                {flash.msg}
+              </p>
+              <TextField
+                required
+                placeholder="username"
+                variant="outlined"
+                size="small"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AccountCircle style={{ color: 'rgb(128,0,128 )' }} />
+                    </InputAdornment>
+                  ),
+                }}
+                className="mb-3 w-100"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+              />
+              <TextField
+                label="Question"
+                select
+                variant="outlined"
+                value={question}
+                onChange={handleChange}
+                className="mt-3"
+                style={{ width: '100%' }}
+              >
+                {questions.map((option) => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                label="Your answer..."
+                variant="filled"
+                className="w-100 mt-3 mb-3"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+              />
+              <div className="px-3 py-3 d-flex justify-content-end">
+                <button
+                  className="border-light rounded-lg shadow-lg px-4 py-2 "
+                  onClick={() => props.setShow(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="border-0 rounded-lg shadow-lg text-light px-4 py-2 ml-3"
+                  style={{ background: 'purple' }}
+                  onClick={handleSubmit}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {showSet ? (
+          <div className="w-100 position-relative">
+            <button
+              className="border-0 bg-transparent position-absolute"
+              style={{ right: '0', color: 'purple' }}
+              onClick={() => props.setShow(false)}
+            >
+              <Cancel />
+            </button>
+
+            <div className="d-flex flex-column align-items-center py-3 w-75 m-auto">
+              <h5 className="text-left w-75 mt-2" style={{ color: 'purple' }}>
+                Reset Password
+              </h5>
+              <p
+                className={
+                  'flash-message w-75 text-center py-1 rounded-lg text-' +
+                  flash.type +
+                  (flash.show ? '' : ' d-none')
+                }
+              >
+                <ErrorOutline fontSize="small" className="mr-1" />
+                {flash.msg}
+              </p>
+              <TextField
+                helperText={
+                  resetPassword.password.trim().length < 8 &&
+                  resetPassword.password.trim().length !== 0
+                    ? 'Minimum 8 characters'
+                    : null
+                }
+                type={resetPassword.showPassword ? 'text' : 'password'}
+                placeholder="new password"
+                variant="outlined"
+                size="small"
+                className="mb-2 w-75"
+                value={resetPassword.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        className="p-0 m-0"
+                        onClick={() =>
+                          setResetPassword({
+                            ...resetPassword,
+                            showPassword: !resetPassword.showPassword,
+                          })
+                        }
+                        onMouseDown={(e) => e.preventDefault()}
+                      >
+                        {resetPassword.showPassword ? (
+                          <Visibility style={{ color: 'purple' }} />
+                        ) : (
+                          <VisibilityOff style={{ color: 'purple' }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) =>
+                  setResetPassword({
+                    ...resetPassword,
+                    password: e.target.value,
+                  })
+                }
+              />
+              <TextField
+                helperText={
+                  resetCPassword.password.trim().length < 8 &&
+                  resetCPassword.password.trim().length !== 0
+                    ? 'Minimum 8 characters'
+                    : null
+                }
+                type={resetCPassword.showPassword ? 'text' : 'password'}
+                placeholder="confirm new password"
+                variant="outlined"
+                size="small"
+                className="mb-2 w-75"
+                value={resetCPassword.password}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        className="p-0 m-0"
+                        onClick={() =>
+                          setResetCPassword({
+                            ...resetCPassword,
+                            showPassword: !resetCPassword.showPassword,
+                          })
+                        }
+                        onMouseDown={(e) => e.preventDefault()}
+                      >
+                        {resetCPassword.showPassword ? (
+                          <Visibility style={{ color: 'purple' }} />
+                        ) : (
+                          <VisibilityOff style={{ color: 'purple' }} />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                onChange={(e) =>
+                  setResetCPassword({
+                    ...resetCPassword,
+                    password: e.target.value,
+                  })
+                }
+              />
               <button
-                className="border-0 rounded-lg shadow-lg text-light px-4 py-2 ml-3"
+                className="border-0 text-light w-25 px-2 py-1 rounded-lg"
                 style={{ background: 'purple' }}
-                onClick={handleSubmit}
+                onClick={handleReset}
               >
                 Submit
               </button>
             </div>
           </div>
-        </div>
-        <div hidden={!showSet} className="w-100 position-relative">
-          <button
-            className="border-0 bg-transparent position-absolute"
-            style={{ right: '0', color: 'purple' }}
-            onClick={() => props.setShow(false)}
-          >
-            <Cancel />
-          </button>
-
-          <div className="d-flex flex-column align-items-center py-3 w-75 m-auto">
-            <h5 className="text-left w-75 mt-2" style={{ color: 'purple' }}>
-              Reset Password
-            </h5>
-            <p
-              className={
-                'flash-message w-75 text-center py-1 rounded-lg text-' +
-                flash.type +
-                (flash.show ? '' : ' d-none')
-              }
-            >
-              <ErrorOutline fontSize="small" className="mr-1" />
-              {flash.msg}
-            </p>
-            <TextField
-              helperText={
-                resetPassword.password.trim().length < 8 &&
-                resetPassword.password.trim().length !== 0
-                  ? 'Minimum 8 characters'
-                  : null
-              }
-              type="password"
-              placeholder="new password"
-              variant="outlined"
-              size="small"
-              className="mb-2 w-75"
-              value={resetPassword.password}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      className="p-0 m-0"
-                      onClick={() =>
-                        setResetPassword({
-                          ...resetPassword,
-                          showPassword: !resetPassword.showPassword,
-                        })
-                      }
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      {resetPassword.showPassword ? (
-                        <Visibility style={{ color: 'purple' }} />
-                      ) : (
-                        <VisibilityOff style={{ color: 'purple' }} />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              onChange={(e) =>
-                setResetPassword({
-                  ...resetPassword,
-                  password: e.target.value,
-                })
-              }
-            />
-            <TextField
-              helperText={
-                resetCPassword.password.trim().length < 8 &&
-                resetCPassword.password.trim().length !== 0
-                  ? 'Minimum 8 characters'
-                  : null
-              }
-              type="password"
-              placeholder="confirm new password"
-              variant="outlined"
-              size="small"
-              className="mb-2 w-75"
-              value={resetCPassword.password}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      className="p-0 m-0"
-                      onClick={() =>
-                        setResetCPassword({
-                          ...resetPassword,
-                          showPassword: !resetPassword.showPassword,
-                        })
-                      }
-                      onMouseDown={(e) => e.preventDefault()}
-                    >
-                      {resetCPassword.showPassword ? (
-                        <Visibility style={{ color: 'purple' }} />
-                      ) : (
-                        <VisibilityOff style={{ color: 'purple' }} />
-                      )}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              onChange={(e) =>
-                setResetCPassword({
-                  ...resetCPassword,
-                  password: e.target.value,
-                })
-              }
-            />
-            <button
-              className="border-0 text-light w-25 px-2 py-1 rounded-lg"
-              style={{ background: 'purple' }}
-              onClick={handleReset}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );

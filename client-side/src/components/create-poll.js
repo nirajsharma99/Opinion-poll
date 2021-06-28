@@ -16,11 +16,14 @@ import TextField from '@material-ui/core/TextField';
 import Notification from './notification';
 import Header from './header';
 import UserIcon from './user-icon';
+import { Switch } from 'antd';
+import '../../node_modules/antd/dist/antd.css';
 import { connect } from 'react-redux';
 import { LogoutAction } from '../store/actions/LogoutAction';
 
 function MainContent(props) {
   const history = useHistory();
+  const [openVote, setOpenVote] = useState(true);
   const [questions, setQuestion] = useState({
     id: short.generate(),
     question: '',
@@ -89,6 +92,7 @@ function MainContent(props) {
           options: inputFields,
           username: props.userDetails.username,
           expiration: questions.expiration,
+          openvote: openVote,
         };
         axios
           .post('/api', data)
@@ -181,7 +185,7 @@ function MainContent(props) {
                     className="mt-4 mb-3 h5 text-secondary"
                     style={{ opacity: 0.7 }}
                   >
-                    Complete below fields to create a poll
+                    Complete the fields below to create a poll
                   </p>
                 </div>
                 <Link
@@ -298,6 +302,25 @@ function MainContent(props) {
                     setQuestion({ ...questions, expiration: e.target.value })
                   }
                 />
+                <div className="mt-3">
+                  <div className="voting-style d-inline-flex align-items-center">
+                    <label className="my-auto ml-md-3">Allow open voting</label>
+                    <Switch
+                      size="default"
+                      onClick={() => setOpenVote(!openVote)}
+                      checked={openVote}
+                      className="mx-3"
+                      style={{
+                        backgroundColor: openVote ? 'purple' : 'gray',
+                      }}
+                    />
+                  </div>
+                  <br />
+                  <span className="note-voting">
+                    Note: Open voting will allow users to vote without signing
+                    in
+                  </span>
+                </div>
               </div>
               <div className=" mt-5 pt-3 ">
                 <button

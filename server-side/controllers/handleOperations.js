@@ -60,6 +60,7 @@ exports.getPoll = (io, x, socket) => {
         expiration: data[0].expiration,
         key: data[0].key,
         username: data[0].username,
+        openvote: data[0].openvote,
         voted: voted,
         index: index,
       };
@@ -89,6 +90,7 @@ exports.getPollToEdit = (io, id, socket) => {
         expired: expire < 0 ? true : false,
         expiration: data[0].expiration,
         key: data[0].key,
+        openvote: data[0].openvote,
       };
       io.to(socket.id).emit('receivePollToEdit', poll);
     }

@@ -2,14 +2,18 @@ import TextField from '@material-ui/core/TextField';
 import axios from 'axios';
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import Loader2 from '../loader/loader2';
+
 const DeleteAccount = (props) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const history = useHistory();
+  const [loader, SetLoader] = useState(false);
   const [deleteAlert, setDeleteAlert] = useState(false);
-  const deleteAccount = () => {  
+  const deleteAccount = () => {
     let data = { password: password, username: props.username };
     if (password.trim().length > 0) {
+      SetLoader(true);
       axios.post('/deleteAccount', data).then((res) => {
         if (res.data.success) {
           localStorage.setItem(
@@ -20,8 +24,10 @@ const DeleteAccount = (props) => {
             })
           );
           setPassword('');
+          SetLoader(false);
           history.push('/');
         } else {
+          SetLoader(false);
           setError(true);
           setDeleteAlert(false);
         }
@@ -42,7 +48,10 @@ const DeleteAccount = (props) => {
       <div className="d-flex flex-column align-items-center bg-white rounded-lg">
         <div className="w-100 d-flex flex-column px-4 pt-4">
           <h5>Delete Account</h5>
-          <span className="text-secondary" style={{fontSize:"0.9rem",fontWeight:"600"}}>
+          <span
+            className="text-secondary"
+            style={{ fontSize: '0.9rem', fontWeight: '600' }}
+          >
             Are you sure you want to delete your Account?
           </span>
           <div className="px-3 py-3 d-flex justify-content-end">
@@ -65,6 +74,7 @@ const DeleteAccount = (props) => {
   );
   return (
     <div className="p-2 user-settings-bg">
+      {loader ? <Loader2 /> : null}
       <span className="font-weight-bold p-3" style={{ color: 'purple' }}>
         Delete Account
       </span>

@@ -132,16 +132,7 @@ app.post('/register', (req, res) => {
 app.post('/api', (req, res) => {
   const ref = firebase.database().ref('polls').push();
   var today = Date();
-  var data = {
-    question: req.body.question.question,
-    pollid: req.body.question.id,
-    options: req.body.options,
-    username: req.body.username,
-    expiration: req.body.expiration,
-    key: ref.key,
-    created: today.toString(),
-  };
-
+  var pollid = req.body.question.id;
   ref
     .set({
       question: req.body.question.question,
@@ -152,9 +143,10 @@ app.post('/api', (req, res) => {
       key: ref.key,
       created: today.toString(),
       starred: false,
+      openvote: req.body.openvote,
     })
     .then(() => {
-      res.send(data);
+      res.send({ pollid: pollid });
     })
     .catch((err) => console.log(err));
 });
@@ -167,6 +159,7 @@ app.post('/editpoll', (req, res) => {
         question: req.body.question,
         options: req.body.options,
         expiration: req.body.expiration,
+        openvote: req.body.openvote,
         edited: Date(),
       })
       .then(() => res.send({ success: true }))
@@ -186,7 +179,10 @@ app.post('/submitresponse', (req, res) => {
     firebase
       .database()
       .ref(`polls/${req.body.key}/voters`)
-      .push({ username: req.body.username, index: req.body.index })
+      .push({
+        username: req.body.username ? req.body.username : '_guest',
+        index: req.body.index,
+      })
       .then(() => res.send({ success: true }))
       .catch(() => res.send({ success: false }));
   });
@@ -234,6 +230,22 @@ app.post('/changePass', (req, res) => {
     }
   });
 });
+
+app.post('/resetPassword', (req, res) => {
+  const ref = firebase.database().ref('users').child(req.body.username);
+  ref.once('value', async (snapshot) => {
+    if (snapshot.val()) {
+      const hashedPassword = await bcrypt.hash(req.body.password, 10);
+      snapshot.ref
+        .update({ password: hashedPassword, resetPassword: Date() })
+        .then(() => res.send({ success: true }))
+        .catch(() => res.send({ success: false }));
+    } else {
+      res.send({ success: false });
+    }
+  });
+});
+
 app.post('/deleteAccount', (req, res) => {
   const ref = firebase.database().ref('users').child(req.body.username);
   ref.once('value', (snapshot) => {
@@ -246,10 +258,9 @@ app.post('/deleteAccount', (req, res) => {
             .remove()
             .then(() => res.send({ success: true }))
             .catch(() => res.send({ success: false }));
-        }else{
-          res.send({success:false});
+        } else {
+          res.send({ success: false });
         }
-        
       });
     }
   });

@@ -71,6 +71,12 @@ function PollResult(props) {
   const [options, setOptions] = useState([]);
   const [showQR, setShowQR] = useState(false);
   let totalvotes = 0;
+  var cache = JSON.parse(
+    localStorage.getItem(
+      question.toLowerCase().trim().slice(0, 4) + pollid.slice(0, 6)
+    )
+  );
+
   options.map((x) => {
     return (totalvotes += x.count);
   });
@@ -187,7 +193,8 @@ function PollResult(props) {
       Submit your vote
     </button>
   );
-  const ShowSelection = () => (
+
+  const ShowUserSelection = () => (
     <span
       className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white "
       style={{
@@ -197,6 +204,22 @@ function PollResult(props) {
       You voted for {options.length > 0 ? options[index].options : null}
     </span>
   );
+  const ShowGuestSelection = () => (
+    <span
+      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white "
+      style={{
+        wordWrap: 'break-word',
+      }}
+    >
+      You voted for{' '}
+      {options.length > 0
+        ? cache
+          ? options[cache.index].options
+          : null
+        : null}
+    </span>
+  );
+
   const handleClick = () => {
     setToast({
       snackbaropen: true,
@@ -353,7 +376,7 @@ function PollResult(props) {
                       </div>
                     ))}
                   </div>
-                  <div hidden={!toggle}>
+                  <div hidden={!toggle} className="chart-bg p-3">
                     <Chart
                       options={chart.options}
                       series={chart.series}
@@ -386,7 +409,17 @@ function PollResult(props) {
                   message={toast.msg}
                   nottype={toast.not}
                 />
-                {voted ? <ShowSelection /> : <ShowButton />}
+                {username ? (
+                  voted ? (
+                    <ShowUserSelection />
+                  ) : (
+                    <ShowButton />
+                  )
+                ) : cache ? (
+                  <ShowGuestSelection />
+                ) : (
+                  <ShowButton />
+                )}
                 <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
                   <div className="d-flex flex-column justify-content-between">
                     <div className="">

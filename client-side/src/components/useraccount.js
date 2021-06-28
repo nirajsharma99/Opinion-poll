@@ -46,8 +46,8 @@ const UserAccount = (props) => {
   }, [temp]);
   return (
     <div className="position-relative">
-      <div className=" account-info-btn-sm d-sm-none d-flex flex-xl-column flex-row  ">
-        <li className="accounts-btn-li-sm">
+      <div className="navigator-btn">
+        <div className=" account-info-btn-sm d-sm-none mx-auto">
           <button
             className={
               'accounts-btn-sm ' +
@@ -57,8 +57,7 @@ const UserAccount = (props) => {
           >
             <FontAwesomeIcon icon={faHome} />
           </button>
-        </li>
-        <li className="accounts-btn-li-sm">
+
           <button
             className={
               'accounts-btn-sm' +
@@ -68,8 +67,7 @@ const UserAccount = (props) => {
           >
             <FontAwesomeIcon icon={faPollH} />
           </button>
-        </li>
-        <li className="accounts-btn-li-sm">
+
           <button
             className={
               'accounts-btn-sm' +
@@ -79,8 +77,7 @@ const UserAccount = (props) => {
           >
             <FontAwesomeIcon icon={faEnvelopeOpenText} />
           </button>
-        </li>
-        <li className="accounts-btn-li-sm ">
+
           <button
             className={
               'accounts-btn-sm' +
@@ -90,7 +87,7 @@ const UserAccount = (props) => {
           >
             <FontAwesomeIcon icon={faCog} />
           </button>
-        </li>
+        </div>
       </div>
       {loader ? <Loader /> : null}
       <Notification

@@ -16,6 +16,8 @@ import IconButton from '@material-ui/core/IconButton';
 import UserIcon from './user-icon';
 import TextField from '@material-ui/core/TextField';
 import Header from './header';
+import { Switch } from 'antd';
+import '../../node_modules/antd/dist/antd.css';
 import { connect } from 'react-redux';
 import io from 'socket.io-client';
 let socket;
@@ -23,6 +25,7 @@ let socket;
 function EditPoll(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
+  const [openVote, setOpenVote] = useState(true);
   const [pollid, setPollid] = useState('');
   const [key, setKey] = useState('');
   const [questions, setQuestion] = useState({
@@ -68,6 +71,7 @@ function EditPoll(props) {
         return medium;
       });
       setInputFields(medium);
+      setOpenVote(poll.openvote);
     });
   }, [props, setQuestion, history, ENDPOINT]);
 
@@ -108,6 +112,7 @@ function EditPoll(props) {
           options: inputFields,
           pollid: pollid,
           key: key,
+          openvote: openVote,
         };
         axios
           .post('/editpoll', data)
@@ -323,6 +328,25 @@ function EditPoll(props) {
                     setQuestion({ ...questions, expiration: e.target.value })
                   }
                 />
+                <div className="mt-3">
+                  <div className="voting-style d-inline-flex align-items-center">
+                    <label className="my-auto ml-md-3">Allow open voting</label>
+                    <Switch
+                      size="default"
+                      onClick={() => setOpenVote(!openVote)}
+                      checked={openVote}
+                      className="mx-3"
+                      style={{
+                        backgroundColor: openVote ? 'purple' : 'gray',
+                      }}
+                    />
+                  </div>
+                  <br />
+                  <span className="note-voting">
+                    Note: Open voting will allow users to vote without signing
+                    in
+                  </span>
+                </div>
               </div>
               <div className="flex justify-content-center mt-5 pt-3 ">
                 <button

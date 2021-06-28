@@ -20,6 +20,7 @@ let socket;
 function Poll(props) {
   const ENDPOINT = 'https://opinion-poll-app.herokuapp.com';
   const history = useHistory();
+  const [openVote, setOpenVote] = useState(true);
   const [username, setUsername] = useState(
     props.userDetails ? props.userDetails.username : null
   );
@@ -50,6 +51,18 @@ function Poll(props) {
     });
   };
 
+  var cache = JSON.parse(
+    localStorage.getItem(
+      question.toLowerCase().trim().slice(0, 4) + pollid.slice(0, 6)
+    )
+  );
+  useEffect(() => {
+    if (cache) {
+      if (cache.pollid === pollid) {
+        history.push('/poll-result/' + pollid);
+      }
+    }
+  }, [pollid, history, cache]);
   useEffect(() => {
     if (voted) {
       history.push('/poll-result/' + pollid);
@@ -82,6 +95,7 @@ function Poll(props) {
           setKey(poll.key);
           setExpired(poll.expired);
           setVoted(poll.voted);
+          setOpenVote(poll.openvote);
           poll.options.map((option) => {
             medium.push(option);
             return medium;
@@ -104,12 +118,13 @@ function Poll(props) {
       key: key,
       index: index,
       username: username,
+      openvote: openVote,
     });
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (username) {
+    if (username || openVote) {
       if (response.options.length > 0) {
         e.preventDefault();
         axios
@@ -123,6 +138,16 @@ function Poll(props) {
                   msg: 'Thankyou, for voting!',
                 })
               );
+              if (!username) {
+                localStorage.setItem(
+                  question.toLowerCase().trim().slice(0, 4) +
+                    pollid.slice(0, 6),
+                  JSON.stringify({
+                    index: response.index,
+                    pollid: pollid,
+                  })
+                );
+              }
               history.push('/poll-result/' + pollid);
             } else {
               console.log('Error submitting response');

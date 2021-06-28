@@ -193,7 +193,10 @@ const PollAdmin = (props) => {
       <div className="d-flex flex-column align-items-center bg-white rounded-lg">
         <div className="w-100 d-flex flex-column px-4 pt-4">
           <h5>Delete Poll</h5>
-          <span className="text-secondary" style={{fontSize:"0.9rem",fontWeight:"600"}}>
+          <span
+            className="text-secondary"
+            style={{ fontSize: '0.9rem', fontWeight: '600' }}
+          >
             Are you sure you want to delete the poll?
           </span>
           <div className="px-3 py-3 d-flex justify-content-end">
@@ -440,7 +443,7 @@ const PollAdmin = (props) => {
                       </div>
                     ))}
                   </div>
-                  <div hidden={!toggle}>
+                  <div hidden={!toggle} className="chart-bg p-3">
                     <Chart
                       options={chart.options}
                       series={chart.series}
