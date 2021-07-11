@@ -46,7 +46,7 @@ const UserAccount = (props) => {
   }, [temp]);
   return (
     <div className="position-relative">
-      <div className="navigator-btn">
+      <div className="navigator-btn mb-1">
         <div className=" account-info-btn-sm d-sm-none mx-auto">
           <button
             className={

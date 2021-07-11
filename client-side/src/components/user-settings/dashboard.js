@@ -17,7 +17,7 @@ const Dashboard = (props) => {
     return { total, inactive };
   });
   return (
-    <div>
+    <div className="t-b-s">
       <div className="d-flex flex-md-row flex-column m-auto w-75">
         <div className="dashboard shadow">
           <div
@@ -94,7 +94,7 @@ const Dashboard = (props) => {
                   <p className="bg-transparent ui-3 mt-0 d-inline-flex">
                     <span className="text-light bg-success ui-4">Created</span>
                     <span
-                      className="text-secondary bg-transparent font-weight-bold p-0"
+                      className="d-flex justify-content-center align-items-center text-secondary bg-transparent font-weight-bold p-0"
                       style={{ fontSize: '0.7rem' }}
                     >
                       {top.time} || {top.date}

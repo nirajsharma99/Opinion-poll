@@ -182,6 +182,7 @@ app.post('/submitresponse', (req, res) => {
       .push({
         username: req.body.username ? req.body.username : '_guest',
         index: req.body.index,
+        date: Date(),
       })
       .then(() => res.send({ success: true }))
       .catch(() => res.send({ success: false }));

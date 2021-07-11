@@ -32,6 +32,16 @@ const ShowSearch = ({ poll, index, deletePoll, importance }) => {
           <div className="text-light font-weight-bold bg-info rounded-lg p-2 d-inline-block div-hover-effect">
             {poll.question}
           </div>
+          <div className="d-block text-left mt-1">
+            <span
+              className={
+                'd-inline-flex ' +
+                (poll.openvote ? 'open-voting' : 'close-voting')
+              }
+            >
+              {poll.openvote ? 'Open voting' : 'Close voting'}
+            </span>
+          </div>
         </button>
       </td>
       <td className="text-dark text-center font-weight-bold">

@@ -3,3 +3,4 @@ client-side/package-lock.json
 server-side/node_modules
 server-side/package-lock.json
 server-side/utils
+server-side/.env

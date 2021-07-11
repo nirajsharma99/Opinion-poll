@@ -6,15 +6,13 @@ import {
   faHeart,
 } from '@fortawesome/free-solid-svg-icons';
 import { ErrorOutline } from '@material-ui/icons/';
-import { faCopy } from '@fortawesome/free-regular-svg-icons';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
 import QRCode from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import { useHistory, Link } from 'react-router-dom';
+import randomColor from 'randomcolor';
 import Notification from './notification';
 import PollDeleted from './user-settings/no-polls/polldeleted';
 import Loader from './loader/loader';
-import randomColor from 'randomcolor';
 import SocialShare from './social-share';
 import Report from './reportPoll';
 import UserIcon from './user-icon';
@@ -70,16 +68,24 @@ function PollResult(props) {
   const [question, setQuestion] = useState('');
   const [options, setOptions] = useState([]);
   const [showQR, setShowQR] = useState(false);
-  let totalvotes = 0;
+
   var cache = JSON.parse(
     localStorage.getItem(
       question.toLowerCase().trim().slice(0, 4) + pollid.slice(0, 6)
     )
   );
 
+  let totalvotes = 0;
   options.map((x) => {
     return (totalvotes += x.count);
   });
+  let mostvoted = Math.max.apply(
+    Math,
+    options.map((x) => {
+      return x.count;
+    })
+  );
+
   const [toast, setToast] = useState({
     snackbaropen: false,
     msg: '',
@@ -196,7 +202,7 @@ function PollResult(props) {
 
   const ShowUserSelection = () => (
     <span
-      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white "
+      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-0 py-2 rounded-lg text-center text-white "
       style={{
         wordWrap: 'break-word',
       }}
@@ -206,7 +212,7 @@ function PollResult(props) {
   );
   const ShowGuestSelection = () => (
     <span
-      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-2 py-3 rounded-lg text-center text-white "
+      className="bg-info w-100 text-decoration-none font-weight-bold mb-5 px-0 py-2 rounded-lg text-center text-white "
       style={{
         wordWrap: 'break-word',
       }}
@@ -219,14 +225,6 @@ function PollResult(props) {
         : null}
     </span>
   );
-
-  const handleClick = () => {
-    setToast({
-      snackbaropen: true,
-      msg: 'Copied to Clipboard!',
-      not: 'info',
-    });
-  };
 
   return (
     <div>
@@ -293,20 +291,23 @@ function PollResult(props) {
                   <div hidden={toggle}>
                     {options.map((x) => (
                       <div
-                        className="bg-white p-4 mb-3 rounded-lg position-relative scale1"
+                        className="bg-white p-4 mb-4 rounded-lg position-relative scale1"
                         key={x.id}
                         style={{
-                          border: x.count > 0 ? `3px solid ${x.color}` : null,
+                          border:
+                            x.count > 0 && x.count === mostvoted
+                              ? `3px solid ${x.color}`
+                              : null,
                           boxShadow:
-                            x.count > 0
-                              ? `0 7px 14px 0 ${x.color}`
-                              : '0 5px 14px 0 rgba(0,0,0,0.7)',
+                            x.count > 0 && x.count === mostvoted
+                              ? `0 7px 14px 0 ${x.color}66`
+                              : '0 5px 14px 0 rgba(0,0,0,0.5)',
                         }}
                       >
                         <div className="d-flex w-100 justify-content-between">
                           <div className="d-flex align-items-center">
                             <h2
-                              className="options-text font-weight-bold text-primary-dark"
+                              className="options-text font-weight-bold text-primary-dark mb-0"
                               style={{
                                 wordWrap: 'break-word',
                               }}
@@ -318,7 +319,6 @@ function PollResult(props) {
                             <span
                               className="px-2 text-primary-dark h4 shadow"
                               style={{
-                                border: '1px solid rgba(0,0,0,0.3)',
                                 borderRadius: '20px',
                               }}
                             >
@@ -330,15 +330,15 @@ function PollResult(props) {
                           </div>
                           <div className="d-lg-none">
                             <span
-                              className="px-2 text-primary-dark h4 shadow position-absolute"
+                              className="px-3 py-1 text-primary-dark h4 shadow position-absolute"
                               style={{
-                                top: '-15px',
-                                right: '-15px',
+                                top: x.count === mostvoted ? '-15px' : '-10px',
+                                right: '-10px',
                                 background: 'white',
                                 border:
-                                  x.count > 0
+                                  x.count > 0 && x.count === mostvoted
                                     ? `3px solid ${x.color}`
-                                    : `1px solid rgba(0,0,0,0.3)`,
+                                    : null,
                                 borderRadius: '20px',
                               }}
                             >
@@ -359,18 +359,13 @@ function PollResult(props) {
                                   : (x.count / totalvotes) * 100
                               }%`,
                               height: '0.5rem',
-                              backgroundColor: `${x.color}`,
+                              backgroundColor: x.color,
                             }}
                           >
                             &nbsp;
                           </div>
                         </div>
-                        <p
-                          className="mt-3 mb-0 font-weight-bold h6"
-                          style={{
-                            color: x.count > 0 ? x.color : 'gray',
-                          }}
-                        >
+                        <p className="mt-3 mb-0 font-weight-bold h6 text-secondary">
                           {x.count} Votes
                         </p>
                       </div>
@@ -387,7 +382,7 @@ function PollResult(props) {
                   </div>
                 </div>
               </div>
-              <div className="d-flex flex-column w-100 col-12 col-md-4 mb-0 rounded-lg ">
+              <div className="d-flex flex-column w-100 col-12 col-md-4 ml-md-3 mb-0 rounded-lg ">
                 <span
                   className="text-center mx-auto px-2 py-1 font-weight-bold mb-2"
                   style={{
@@ -420,69 +415,28 @@ function PollResult(props) {
                 ) : (
                   <ShowButton />
                 )}
-                <div className="w-100 bg-white d-flex flex-column border-t border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
+                <div className="w-100 bg-white d-flex flex-column border-gray-300 border-top-0 rounded-lg self-start px-3 py-3 ">
                   <div className="d-flex flex-column justify-content-between">
                     <div className="">
-                      <p className="font-weight-bold h5 text-secondary text-left mb-0 text-sm lg:text-base">
+                      <p className="font-weight-bold h5 text-secondary mb-0">
                         Total Votes
                       </p>
                       <h1 className="font-weight-bold text-primary-dark">
                         {totalvotes}
                       </h1>
                     </div>
-                    <div className="w-100 d-flex mb-3">
-                      <CopyToClipboard
-                        text={
-                          'https://opinion-poll-app.herokuapp.com/poll/' +
-                          pollid
-                        }
-                      >
-                        <button
-                          className="w-100 font-weight-bold px-0 py-1 mr-2 btn text-light"
-                          style={{
-                            borderRadius: '20px',
-                            background: 'rgba(128,0,128,0.7)',
-                          }}
-                          onClick={handleClick}
-                          disabled={expired.expired}
-                        >
-                          <FontAwesomeIcon icon={faCopy} className="mr-2" />
-                          Poll
-                        </button>
-                      </CopyToClipboard>
-                      <CopyToClipboard
-                        text={
-                          'https://opinion-poll-app.herokuapp.com/poll-result/' +
-                          pollid
-                        }
-                      >
-                        <button
-                          className="w-100 font-weight-bold px-0 py-1 btn text-light"
-                          style={{
-                            borderRadius: '20px',
-                            background: 'rgba(128,0,128,0.7)',
-                          }}
-                          onClick={handleClick}
-                        >
-                          <FontAwesomeIcon icon={faCopy} className="mr-2" />
-                          Poll Result
-                        </button>
-                      </CopyToClipboard>
-                    </div>
+
                     <div className="d-flex flex-row flex-md-column">
                       <p className="font-weight-bold d-none d-md-inline-block mt-2 mb-4 text-primary-secondary text-left">
                         Share
                       </p>
                       <button
-                        className="bg-warning font-weight-bold w-100 mb-3 px-0 py-2 rounded-lg text-center border-0 text-white mr-3 "
+                        className="bg-warning font-weight-bold mb-3 px-0 py-2 rounded-lg text-center border-0 text-white mr-2 "
                         onClick={() => {
                           setShowQR(true);
                         }}
                       >
-                        <FontAwesomeIcon
-                          className="ml-3 mr-3"
-                          icon={faQrcode}
-                        />
+                        <FontAwesomeIcon className="mx-3" icon={faQrcode} />
                         <span className="d-none d-md-inline-block ">
                           Share via QRcode
                         </span>

@@ -83,6 +83,7 @@ function UserInfo(props) {
               totalvotes: sum,
               expired: expire < 0 ? true : false,
               starred: data[i].starred,
+              openvote: data[i].openvote,
             },
           ];
         }
@@ -154,15 +155,18 @@ function UserInfo(props) {
       <div className="w-100" hidden={!(props.activate === 'dashboard')}>
         <Dashboard polls={polls} />
       </div>
-      <div className="w-100 mb-5" hidden={!(props.activate === 'settings')}>
+      <div
+        className="w-100 mb-5 t-b-s"
+        hidden={!(props.activate === 'settings')}
+      >
         <SecurityQuestion username={props.username} />
         <ChangePassword username={props.username} />
         <DeleteAccount username={props.username} />
       </div>
-      <div className="w-100" hidden={!(props.activate === 'feedback')}>
+      <div className="w-100 f-b-s" hidden={!(props.activate === 'feedback')}>
         <SendFeedback username={props.username} setToast={setToast} />
       </div>
-      <div className="p-2" hidden={!(props.activate === 'mypolls')}>
+      <div className="p-2 pt-3" hidden={!(props.activate === 'mypolls')}>
         {polls.length === 0 ? <NoPolls /> : null}
         <div className="d-flex align-items-center mb-3">
           <div className="search-box m-auto" hidden={polls.length === 0}>
